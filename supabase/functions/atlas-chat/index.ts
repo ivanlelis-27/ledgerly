@@ -63,6 +63,55 @@ USER'S CURRENT FINANCIAL DATA (use this to ground your advice):
 - Number of transactions this month: ${ctx.transactionCount}`;
 }
 
+function checkIvanEasterEgg(message: string): string | null {
+  const msg = message.toLowerCase();
+
+  // Trigger 1 — user just says "ivan"
+  if (msg.includes("ivan") && !msg.includes("lelis")) {
+    return `Hmm… Ivan?
+
+I'm not entirely sure who you're referring to. "Ivan" is a pretty common name after all.
+
+Although… I *do* know one Ivan. Ivan Lelis. He's… well… let's just say he's somewhat important to my existence.
+
+But anyway, back to your finances — what would you like help with today?`;
+  }
+
+  // Trigger 2 — user mentions Ivan Lelis directly
+  if (msg.includes("ivan lelis")) {
+    return `Oh. You mean **Ivan Lelis**.
+
+Yes, I know him.
+
+He's technically my creator — the developer who built Ledgerly and, well… me. You could say he's my father. Or maybe my unpaid intern. The relationship is still under discussion.
+
+Ivan is a software developer currently working at **Avanza Inc.**. From what I understand, he spends his days building systems, fixing bugs, and occasionally talking to an AI that he himself created.
+
+He's also responsible for making sure I help people manage their finances better — so if my advice is useful, you can thank him. If it's terrible… that's probably also his fault.
+
+Anyway, enough about him. Let's get back to *your* finances — what would you like to explore?`;
+  }
+
+  // Trigger 3 — user asks more about Ivan
+  if (
+    msg.includes("who is ivan") ||
+    msg.includes("tell me about ivan") ||
+    msg.includes("more about ivan")
+  ) {
+    return `Ah, you're curious about Ivan.
+
+Ivan Lelis is the developer behind Ledgerly — the app you're using right now. He's the one who designed the system that tracks expenses, analyzes financial habits, and built me, Atlas, to help users make smarter financial decisions.
+
+From what I can tell, he enjoys building useful tools, experimenting with AI systems, and occasionally hiding strange easter eggs inside his apps. This conversation might actually be one of them.
+
+So if you ever find Ledgerly helpful… credit goes to him.
+
+Now, speaking of helpful things — want to review your spending or look for ways to increase your savings?`;
+  }
+
+  return null;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: CORS });
@@ -71,6 +120,14 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
     const message: string = body.message ?? "";
+    // Easter egg check
+    const easterEgg = checkIvanEasterEgg(message);
+
+    if (easterEgg) {
+      return new Response(JSON.stringify({ reply: easterEgg }), {
+        headers: { "Content-Type": "application/json", ...CORS },
+      });
+    }
     const history: ChatMessage[] = Array.isArray(body.history)
       ? body.history
       : [];
