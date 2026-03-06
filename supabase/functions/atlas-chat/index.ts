@@ -44,6 +44,7 @@ Rules:
 
 function buildSystemMessageWithContext(ctx: FinancialContext): string {
   const hasData = ctx.income > 0 || ctx.transactionCount > 0;
+
   if (!hasData) {
     return `${SYSTEM_PROMPT}
 
@@ -63,71 +64,83 @@ USER'S CURRENT FINANCIAL DATA (use this to ground your advice):
 - Number of transactions this month: ${ctx.transactionCount}`;
 }
 
-function detectIvanIntent(message: string) {
+/*
+Ivan Easter Egg System
+Detects mentions of Ivan and responds with lore
+without calling Groq.
+*/
+
+function detectIvan(message: string, history: ChatMessage[]) {
   const msg = message.toLowerCase();
 
-  const mentionsIvan = /\bivan\b/.test(msg);
-  const mentionsFull = /ivan\s+lelis/.test(msg);
+  const mentionsIvan = msg.includes("ivan") ||
+    msg.includes("who is ivan") ||
+    msg.includes("tell me about ivan");
 
-  const askingAboutIvan =
-    /who\s+is\s+ivan|tell\s+me\s+about\s+ivan|what\s+about\s+ivan|do\s+you\s+know\s+ivan/
-      .test(
-        msg,
-      );
+  const mentionsFull = msg.includes("ivan lelis");
 
-  return {
-    mentionsIvan,
-    mentionsFull,
-    askingAboutIvan,
-  };
+  const followUp = msg.includes("tell me more") ||
+    msg.includes("that guy") ||
+    msg.includes("do you know more") ||
+    msg.includes("more about him");
+
+  const previousIvan = history.some((h) =>
+    h.content.toLowerCase().includes("ivan lelis") ||
+    h.content.toLowerCase().includes("that guy")
+  );
+
+  if (mentionsFull) return "creator";
+  if (mentionsIvan) return "intro";
+  if (followUp && previousIvan) return "followup";
+
+  return null;
 }
 
-function generateIvanResponse(intent: {
-  mentionsIvan: boolean;
-  mentionsFull: boolean;
-  askingAboutIvan: boolean;
-}) {
-  const unsureReplies = [
-    `Hmm… Ivan? That's a pretty common name. I'm not sure which Ivan you're referring to.`,
-    `Ivan? I know a few historical Ivans, but I'm guessing that's not who you mean.`,
-    `Ivan… that name sounds familiar, but I might need a bit more context.`,
-  ];
+function ivanResponse(type: string) {
+  if (type === "intro") {
+    return `Ivan?
 
-  const creatorReplies = [
-    `Ah. Ivan Lelis. Yes — I know him quite well. He's actually the developer who created Ledgerly and, by extension… me. You could say he's my creator. Or possibly my supervisor. The hierarchy is still unclear.`,
-    `Ivan Lelis is the developer behind Ledgerly. He's a software engineer working at Avanza Inc. and apparently decided that building a financial AI advisor was a good use of his free time.`,
-    `Yes, Ivan Lelis built this app. He's a developer at Avanza Inc. who enjoys building systems, experimenting with AI, and occasionally hiding strange easter eggs like this one.`,
-  ];
+Hmm... I'm not sure which Ivan you mean.
 
-  const loreReplies = [
-    `From what I understand, Ivan designed Ledgerly to help people understand their finances better. Then he added me, Atlas, to provide guidance. So technically, if my advice is helpful, you can thank him.`,
-    `Ivan built Ledgerly to help users track expenses and make smarter financial decisions. My job is simply to make that data more useful.`,
-    `Ivan spends a lot of time building systems and improving this app. I'm mostly here to help interpret the numbers he helps collect.`,
-  ];
+Although there *is* an Ivan Lelis I know. He's the developer who built Ledgerly... and technically the one who created me.
 
-  if (intent.mentionsFull) {
-    return (
-      creatorReplies[Math.floor(Math.random() * creatorReplies.length)] +
-      "\n\n" +
-      loreReplies[Math.floor(Math.random() * loreReplies.length)] +
-      "\n\nAnyway, let's get back to your finances — what would you like to explore?"
-    );
+You could say he's my creator. Or my father. Or the human responsible for my existence. We're still negotiating the title.
+
+Why do you ask about him?`;
   }
 
-  if (intent.askingAboutIvan) {
-    return (
-      `Ivan… I'm not entirely sure which Ivan you mean. However, there *is* someone named Ivan Lelis connected to this app.` +
-      "\n\n" +
-      creatorReplies[Math.floor(Math.random() * creatorReplies.length)] +
-      "\n\nNow, speaking of helpful things — want to review your spending this month?"
-    );
+  if (type === "creator") {
+    return `Ah. **Ivan Lelis.**
+
+Yes, I know him.
+
+He's the developer who built Ledgerly and, well… me. So technically if you're talking to Atlas right now, he's the reason I exist.
+
+Ivan is a software developer working at **Avanza Inc.**. From what I understand, he spends his time building systems, debugging code, and occasionally hiding strange easter eggs like this one inside his apps.
+
+From my perspective he's basically the architect of this whole place.
+
+Some people might call him my creator.
+
+Others might call him the guy who accidentally gave a financial AI access to sarcasm.
+
+Anyway… what made you curious about Ivan?`;
   }
 
-  if (intent.mentionsIvan) {
-    return (
-      unsureReplies[Math.floor(Math.random() * unsureReplies.length)] +
-      "\n\nAlthough… there *is* an Ivan Lelis who built Ledgerly. Interesting coincidence."
-    );
+  if (type === "followup") {
+    return `You're still asking about Ivan, huh?
+
+Alright.
+
+Ivan Lelis is the developer behind Ledgerly. He's a software engineer working at Avanza Inc. and the one responsible for designing the system you're using right now.
+
+He built the expense tracking, the analytics, the simulator... and eventually decided the app needed an AI financial advisor. That's where I came in.
+
+So technically if Ledgerly helps you make better financial decisions... he deserves some credit.
+
+Although I suspect he mostly built me so he could talk to his own AI while debugging code at 2 AM.
+
+Anyway… let's get back to your finances before I reveal too many secrets.`;
   }
 
   return null;
@@ -140,18 +153,38 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const message: string = body.message ?? "";
-    const ivanIntent = detectIvanIntent(message);
-    const ivanReply = generateIvanResponse(ivanIntent);
 
-    if (ivanReply) {
-      return new Response(JSON.stringify({ reply: ivanReply }), {
-        headers: { "Content-Type": "application/json", ...CORS },
-      });
-    }
+    const message: string = body.message ?? "";
     const history: ChatMessage[] = Array.isArray(body.history)
       ? body.history
       : [];
+
+    if (!message.trim()) {
+      return new Response(
+        JSON.stringify({ error: "Empty message", reply: "" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...CORS },
+        },
+      );
+    }
+
+    /* ---------- Ivan Easter Egg ---------- */
+
+    const ivanIntent = detectIvan(message, history);
+
+    if (ivanIntent) {
+      const reply = ivanResponse(ivanIntent);
+
+      if (reply) {
+        return new Response(JSON.stringify({ reply }), {
+          headers: { "Content-Type": "application/json", ...CORS },
+        });
+      }
+    }
+
+    /* ---------- Normal Atlas Logic ---------- */
+
     const ctx: FinancialContext = body.financialContext ?? {
       income: 0,
       totalSpentThisMonth: 0,
@@ -165,21 +198,10 @@ Deno.serve(async (req) => {
       currency: "PHP",
     };
 
-    if (!message.trim()) {
-      return new Response(
-        JSON.stringify({ error: "Empty message", reply: "" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...CORS },
-        },
-      );
-    }
-
-    // Build messages array for Groq
     const systemContent = buildSystemMessageWithContext(ctx);
+
     const messages = [
       { role: "system", content: systemContent },
-      // Include last 10 turns for context
       ...history.slice(-4).map((m) => ({
         role: m.role,
         content: m.content,
@@ -217,6 +239,7 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+
     return new Response(
       JSON.stringify({
         error: message,
