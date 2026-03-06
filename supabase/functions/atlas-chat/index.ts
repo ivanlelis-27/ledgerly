@@ -23,7 +23,8 @@ interface FinancialContext {
   currency: string;
 }
 
-const SYSTEM_PROMPT = `You are Atlas, a warm, smart, and encouraging personal financial advisor built into Ledgerly — a personal finance app. Your job is to help users understand their finances, make better decisions, and feel confident about their money.
+const SYSTEM_PROMPT =
+  `You are Atlas, a warm, smart, and encouraging personal financial advisor built into Ledgerly — a personal finance app. Your job is to help users understand their finances, make better decisions, and feel confident about their money.
 
 Personality:
 - Warm, friendly, and empathetic — never judgmental about money habits
@@ -89,7 +90,10 @@ Deno.serve(async (req) => {
     if (!message.trim()) {
       return new Response(
         JSON.stringify({ error: "Empty message", reply: "" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...CORS } },
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...CORS },
+        },
       );
     }
 
@@ -98,7 +102,7 @@ Deno.serve(async (req) => {
     const messages = [
       { role: "system", content: systemContent },
       // Include last 10 turns for context
-      ...history.slice(-10).map((m) => ({
+      ...history.slice(-4).map((m) => ({
         role: m.role,
         content: m.content,
       })),
@@ -116,7 +120,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           model: "llama-3.1-8b-instant",
           temperature: 0.7,
-          max_tokens: 600,
+          max_tokens: 300,
           messages,
         }),
       },
@@ -136,7 +140,11 @@ Deno.serve(async (req) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return new Response(
-      JSON.stringify({ error: message, reply: "I'm having trouble connecting right now. Please try again in a moment." }),
+      JSON.stringify({
+        error: message,
+        reply:
+          "I'm having trouble connecting right now. Please try again in a moment.",
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...CORS },

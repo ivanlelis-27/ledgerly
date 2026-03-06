@@ -11,6 +11,9 @@ export default function Profile() {
     const [ledgerlyId, setLedgerlyId] = useState<string | null>(null);
     const [aliasLoading, setAliasLoading] = useState(false);
     const [aliasError, setAliasError] = useState<string | null>(null);
+
+    // Modal state
+    const [modalOpen, setModalOpen] = useState(false);
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -66,6 +69,7 @@ export default function Profile() {
 
     const initials = getInitials(displayName);
 
+    // Sync form fields when user loads or modal opens
     useEffect(() => {
         if (!user) {
             setFirstName("");
@@ -90,7 +94,7 @@ export default function Profile() {
         setLastName(l);
         setAvatarPreview((meta.avatar_url as string | undefined) || (meta.picture as string | undefined) || null);
         setAvatarFile(null);
-    }, [user]);
+    }, [user, modalOpen]);
 
     useEffect(() => {
         return () => {
@@ -135,6 +139,16 @@ export default function Profile() {
         };
     }, [user?.id]);
 
+    function openModal() {
+        setSaveError(null);
+        setSaveSuccess(null);
+        setModalOpen(true);
+    }
+
+    function closeModal() {
+        setModalOpen(false);
+    }
+
     async function handleProfileSave(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!user) return;
@@ -169,7 +183,8 @@ export default function Profile() {
             const { data: refreshed, error: refreshError } = await supabase.auth.getUser();
             if (refreshError) throw refreshError;
             setUser(refreshed.user ?? null);
-            setSaveSuccess("Profile updated");
+            setSaveSuccess("Profile updated!");
+            setTimeout(() => setModalOpen(false), 900);
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to update profile.";
             setSaveError(message);
@@ -218,10 +233,11 @@ export default function Profile() {
                 )}
             </div>
 
-            {!loading && !user && <div className="emptyCard">We couldn’t find any profile data for this session.</div>}
+            {!loading && !user && <div className="emptyCard">We couldn't find any profile data for this session.</div>}
 
             {user && (
                 <div className="profileGrid">
+                    {/* Hero card */}
                     <section className="card heroCard">
                         <div className={`avatar ${avatarPreview ? "withPhoto" : ""}`}>
                             {avatarPreview ? (
@@ -235,8 +251,14 @@ export default function Profile() {
                             <div className="displayName">{displayName}</div>
                             <div className="muted">{user.email ?? "No email on file"}</div>
                         </div>
+
+                        <button className="editProfileBtn" onClick={openModal}>
+                            <EditIcon />
+                            Edit Profile
+                        </button>
                     </section>
 
+                    {/* Account details */}
                     <section className="card detailsCard">
                         <div className="cardTitle">Account details</div>
 
@@ -259,10 +281,20 @@ export default function Profile() {
                             </div>
                         </div>
                     </section>
+                </div>
+            )}
 
-                    <section className="card editCard">
-                        <div className="cardTitle">Edit profile</div>
+            {/* ── Edit Profile Modal ── */}
+            {modalOpen && (
+                <div className="modalOverlay" onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
+                    <div className="modalCard" role="dialog" aria-modal="true" aria-label="Edit profile">
+                        <div className="modalHeader">
+                            <div className="modalTitle">Edit Profile</div>
+                            <button className="modalClose" onClick={closeModal} aria-label="Close">✕</button>
+                        </div>
+
                         <form className="profileForm" onSubmit={handleProfileSave}>
+                            {/* Avatar */}
                             <div className="photoField">
                                 <div className={`photoPreview ${avatarPreview ? "withPhoto" : ""}`}>
                                     {avatarPreview ? (
@@ -292,6 +324,7 @@ export default function Profile() {
                                 </div>
                             </div>
 
+                            {/* Name fields */}
                             <div className="formGrid">
                                 <label className="field">
                                     <span className="fieldLabel">First name</span>
@@ -318,26 +351,28 @@ export default function Profile() {
                             </div>
 
                             <div className="formActions">
-                                {saveError && (
-                                    <span className="error" role="alert">
-                                        {saveError}
-                                    </span>
-                                )}
-                                {saveSuccess && !saveError && (
-                                    <span className="success" role="status">
-                                        {saveSuccess}
-                                    </span>
-                                )}
+                                {saveError && <span className="error" role="alert">{saveError}</span>}
+                                {saveSuccess && !saveError && <span className="success" role="status">{saveSuccess}</span>}
+                                <button className="ghostBtn" type="button" onClick={closeModal} disabled={saving}>
+                                    Cancel
+                                </button>
                                 <button className="primaryBtn" type="submit" disabled={saving}>
                                     {saving ? "Saving…" : "Save changes"}
                                 </button>
                             </div>
                         </form>
-                    </section>
+                    </div>
                 </div>
             )}
-
         </div>
+    );
+}
+
+function EditIcon() {
+    return (
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" width="15" height="15" aria-hidden="true">
+            <path d="M13.5 3.5l3 3L7 16l-4 1 1-4 9.5-9.5z" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
     );
 }
 
@@ -375,14 +410,12 @@ function formatAliasError(err: unknown) {
 async function uploadAvatar(file: File, userId: string) {
     const bucket = "avatars";
 
-    // Auth sanity check
     const { data: sess, error: sessErr } = await supabase.auth.getSession();
     if (sessErr) throw sessErr;
     const sessionUid = sess.session?.user?.id ?? null;
     if (!sessionUid) throw new Error("Not authenticated (no session) during upload.");
     if (sessionUid !== userId) throw new Error("Session user mismatch vs provided userId.");
 
-    // Determine extension
     const ext =
         file.type === "image/png" ? "png" :
             file.type === "image/webp" ? "webp" :
@@ -390,14 +423,10 @@ async function uploadAvatar(file: File, userId: string) {
                     file.type === "image/jpeg" ? "jpg" :
                         (file.name.split(".").pop() || "jpg");
 
-    // Upload to a deterministic filename PER ext
-    // (We'll delete other ext variants after upload)
     const fileName = `avatar.${ext}`;
     const path = `${userId}/${fileName}`;
-
     const contentType = file.type || (ext === "png" ? "image/png" : "image/jpeg");
 
-    // 1) Upload new avatar first (so user never ends up with "no avatar" if upload fails)
     const { error: uploadError } = await supabase.storage.from(bucket).upload(path, file, {
         cacheControl: "3600",
         upsert: true,
@@ -405,16 +434,12 @@ async function uploadAvatar(file: File, userId: string) {
     });
     if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
 
-    // 2) Cleanup other avatar variants (delete everything avatar.* except the one we just uploaded)
     await cleanupOldAvatarVariants(bucket, userId, fileName);
 
-    // 3) Return new public URL (cache-busted)
     const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
     if (!pub?.publicUrl) throw new Error("Unable to generate avatar URL.");
     return `${pub.publicUrl}?v=${Date.now()}`;
 }
-
-
 
 async function cleanupOldAvatarVariants(bucket: string, userId: string, keepFileName: string) {
     const { data: list, error: listError } = await supabase.storage.from(bucket).list(userId, { limit: 100 });
@@ -429,10 +454,6 @@ async function cleanupOldAvatarVariants(bucket: string, userId: string, keepFile
 
     const { error: removeError } = await supabase.storage.from(bucket).remove(toRemove);
     if (removeError) {
-        // Not fatal, but helpful for debugging if policy is missing
         console.warn("[cleanupOldAvatarVariants] removeError:", removeError.message);
     }
 }
-
-
-

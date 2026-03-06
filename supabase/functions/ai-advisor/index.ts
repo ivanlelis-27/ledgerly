@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     const topCategories = Object.entries(categoryMap)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
-      .map(([name, amt]) => `${name}: ₱${amt.toFixed(0)}`)
+      .map(([name, amt]) => `${name}(${amt.toFixed(0)})`)
       .join(", ");
 
     const recurringTotal: number = (recurring ?? []).reduce(
@@ -77,6 +77,7 @@ Example format: [{"id":"...","type":"tip","title":"...","body":"..."}]`;
         body: JSON.stringify({
           model: "llama-3.1-8b-instant",
           temperature: 0.5,
+          max_tokens: 250,
           messages: [
             {
               role: "system",
