@@ -1,0 +1,18 @@
+{
+  "name": "Ledgerly",
+  "short_name": "Ledgerly",
+  "description": "Your personal finance tracker",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#6366f1",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
