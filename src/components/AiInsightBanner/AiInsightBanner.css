@@ -1,0 +1,246 @@
+/* ── AI Insight Banner ───────────────────────────────────────── */
+.aib {
+    position: relative;
+    border-radius: 18px;
+    padding: 2px; /* gradient border trick */
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Gradient border via pseudo-element */
+.aib::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    padding: 1.5px;
+    background: var(--aib-gradient);
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Per-type gradients */
+.aib--warning {
+    --aib-gradient: linear-gradient(135deg, #f59e0b, #ef4444);
+    --aib-accent: #f59e0b;
+    --aib-tint: rgba(245, 158, 11, 0.07);
+}
+.aib--tip {
+    --aib-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+    --aib-accent: #6366f1;
+    --aib-tint: rgba(99, 102, 241, 0.07);
+}
+.aib--positive {
+    --aib-gradient: linear-gradient(135deg, #10b981, #06b6d4);
+    --aib-accent: #10b981;
+    --aib-tint: rgba(16, 185, 129, 0.07);
+}
+.aib--info {
+    --aib-gradient: linear-gradient(135deg, #38bdf8, #818cf8);
+    --aib-accent: #38bdf8;
+    --aib-tint: rgba(56, 189, 248, 0.07);
+}
+
+.aib__inner {
+    position: relative;
+    background: var(--surface-card);
+    background-image: radial-gradient(
+        ellipse at 0% 0%,
+        var(--aib-tint) 0%,
+        transparent 70%
+    );
+    border-radius: 16px;
+    padding: 14px 16px;
+    animation: aib-slide-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+}
+
+@keyframes aib-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Faint sparkle emoji decoration */
+.aib__sparkle {
+    position: absolute;
+    bottom: -10px;
+    right: 10px;
+    font-size: 64px;
+    opacity: 0.06;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+    z-index: 0;
+}
+
+/* ── Head row ── */
+.aib__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+/* Right side: timestamp + refresh + dots */
+.aib__headRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.aib__ts {
+    font-size: 10px;
+    color: var(--text-muted);
+    opacity: 0.65;
+    white-space: nowrap;
+}
+
+.aib__refresh {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s, background 0.15s, transform 0.3s;
+    font-family: inherit;
+}
+.aib__refresh:hover { color: var(--text-primary); background: var(--surface-ghost); transform: rotate(180deg); }
+.aib__refresh:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+
+.aib__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: color-mix(in srgb, var(--aib-accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--aib-accent) 25%, transparent);
+    border-radius: 999px;
+    padding: 3px 10px 3px 6px;
+    line-height: 1;
+}
+
+.aib__badge-icon {
+    font-size: 13px;
+}
+
+.aib__badge-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--aib-accent);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+/* ── Dot indicators ── */
+.aib__dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.aib__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border-color);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.aib__dot--on {
+    background: var(--aib-accent);
+    transform: scale(1.35);
+}
+
+/* ── Content ── */
+.aib__content {
+    display: grid;
+    gap: 4px;
+}
+
+.aib__title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.35;
+}
+
+.aib__body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.55;
+}
+
+/* ── Action link ── */
+.aib__action {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--aib-accent);
+    text-decoration: none;
+    transition: opacity 0.15s;
+}
+
+.aib__action:hover {
+    opacity: 0.7;
+}
+
+/* ── Skeleton loading shimmer ── */
+@keyframes aib-shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position:  400px 0; }
+}
+
+.aib--loading {
+    --aib-gradient: linear-gradient(135deg, var(--border-color), var(--surface-pill));
+}
+
+.aib--loading .aib__inner {
+    background: var(--surface-card);
+    border-radius: 16px;
+    padding: 14px 16px;
+}
+
+.aib__skel-badge,
+.aib__skel-title,
+.aib__skel-body {
+    border-radius: 8px;
+    background: linear-gradient(
+        90deg,
+        var(--surface-ghost) 25%,
+        var(--surface-pill)  50%,
+        var(--surface-ghost) 75%
+    );
+    background-size: 800px 100%;
+    animation: aib-shimmer 1.4s infinite linear;
+}
+
+.aib__skel-badge  { height: 22px; width: 140px; margin-bottom: 12px; border-radius: 999px; }
+.aib__skel-title  { height: 16px; width: 65%;   margin-bottom: 10px; }
+.aib__skel-body   { height: 12px; width: 100%;  margin-bottom: 6px; }
+.aib__skel-body--short { width: 75%; }

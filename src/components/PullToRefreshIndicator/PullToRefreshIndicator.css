@@ -1,0 +1,96 @@
+.ptrWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    overflow: hidden;
+    /* Height and opacity are controlled inline by the component */
+    transition: height 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                opacity 0.2s ease;
+    padding-bottom: 6px;
+    /* Only show on touch devices */
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Hide on non-touch (desktop) */
+@media (hover: hover) and (pointer: fine) {
+    .ptrWrap { display: none; }
+}
+
+.ptrCircle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: grid;
+    place-items: center;
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+}
+
+.ptrCircleReady {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: #6366f1;
+}
+
+/* Spin animation for refreshing state */
+@keyframes ptrSpin {
+    to { transform: rotate(360deg); }
+}
+
+.ptrSpinning .ptrSvg {
+    animation: ptrSpin 0.8s linear infinite;
+}
+
+.ptrSvg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.ptrTrack {
+    fill: none;
+    stroke: var(--border-color);
+    stroke-width: 2.5;
+}
+
+.ptrArc {
+    fill: none;
+    stroke: #6366f1;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    transform-origin: center;
+}
+
+@keyframes ptrArcSpin {
+    0%   { stroke-dashoffset: 80; }
+    50%  { stroke-dashoffset: 20; }
+    100% { stroke-dashoffset: 80; }
+}
+
+.ptrArcSpin {
+    animation: ptrArcSpin 1s ease-in-out infinite;
+}
+
+.ptrArrow {
+    position: relative;
+    z-index: 1;
+    font-size: 14px;
+    color: #6366f1;
+    line-height: 1;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ptrLabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}

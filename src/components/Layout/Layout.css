@@ -1,0 +1,338 @@
+/* ── Base layout ── */
+.layout {
+    min-height: 100vh;
+    background: var(--bg-root);
+}
+
+/* ── Top bar ── */
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    padding: 0 14px;
+    height: 54px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--surface-nav);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.brandRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brand {
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: 0.2px;
+    color: var(--text-primary);
+}
+
+/* ── Hamburger button ── */
+.burgerBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-pill);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 160ms ease;
+}
+.burgerBtn:hover { background: var(--surface-active); }
+
+/* Three-line burger that animates to X */
+.burger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 18px;
+    height: 14px;
+}
+.burger span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--text-primary);
+    transition: transform 240ms ease, opacity 240ms ease;
+    transform-origin: center;
+}
+/* Animate to X when open */
+.burgerOpen span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.burgerOpen span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.burgerOpen span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* ── Theme toggle ── */
+.themeToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-pill);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: transform 160ms ease, background 160ms ease;
+    white-space: nowrap;
+}
+.themeToggle:hover { transform: translateY(-1px); }
+.themeIcon svg { width: 16px; height: 16px; display: block; }
+.themeLabel { font-size: 13px; text-transform: capitalize; }
+.themeToggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── Shell: sidebar + main ── */
+.shell {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    /* Fixed height = viewport minus topbar; content scrolls inside */
+    min-height: calc(100vh - 54px);
+}
+
+/* ── Backdrop (mobile only) ── */
+.sideBackdrop {
+    display: none;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    position: sticky;
+    top: 54px;
+    height: calc(100vh - 54px);
+    overflow-y: auto;
+    border-right: 1px solid var(--border-color);
+    background: var(--surface-nav);
+    padding: 12px;
+}
+
+.sideNav {
+    display: grid;
+    gap: 4px;
+}
+
+.sideLink {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 13px;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    text-decoration: none;
+    font-size: 13.5px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    background: none;
+    transition: background 140ms ease, border 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.sideLink:hover {
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.sideLink.active {
+    background: var(--surface-active);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.sideIcon {
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+.sideIcon svg { width: 18px; height: 18px; display: block; }
+
+.sideLabel {
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.logoutLink:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: var(--text-primary);
+}
+.logoutLink:focus-visible {
+    outline: 2px solid rgba(239, 68, 68, 0.5);
+    outline-offset: 2px;
+}
+
+/* Atlas AI link — gradient accent */
+.atlasLink {
+    background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(56,189,248,0.06));
+    border-color: rgba(99, 102, 241, 0.2);
+}
+.atlasLink:hover {
+    background: linear-gradient(135deg, rgba(99,102,241,0.14), rgba(56,189,248,0.14));
+    border-color: rgba(99, 102, 241, 0.4);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+.atlasLink.active {
+    background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(56,189,248,0.18));
+    border-color: rgba(99, 102, 241, 0.45);
+}
+
+/* ── Main content — this is the single scroll region ── */
+.content {
+    /* height:100% works because shell now has explicit height on all breakpoints */
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* Smooth, native-feeling scroll */
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+
+    padding: 28px 24px;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ── Logout modal ── */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.55);
+    backdrop-filter: blur(6px);
+    display: grid;
+    place-items: center;
+    z-index: 100;
+    padding: 16px;
+}
+.modalCard {
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 22px;
+    width: min(360px, 100%);
+    box-shadow: var(--shadow-soft);
+}
+.modalTitle { font-size: 17px; font-weight: 900; margin: 0; }
+.modalText { margin: 8px 0 0; font-size: 13px; color: var(--text-muted); }
+.modalActions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.ghostBtn {
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+}
+.dangerBtn {
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: #dc2626;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+/* ════════════════════════════════════════════
+   MOBILE — hamburger drawer sidebar
+   ════════════════════════════════════════════ */
+@media (max-width: 767px) {
+    /* Hide burger on desktop is below; show on mobile always */
+    .burgerBtn { display: flex; }
+
+    /* Shell becomes single column */
+    .shell {
+        grid-template-columns: 1fr;
+    }
+
+    /* Backdrop */
+    .sideBackdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        top: 54px;
+        background: rgba(2, 6, 23, 0.45);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        z-index: 30;
+        animation: fadeIn 160ms ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    /* Sidebar is a slide-in drawer */
+    .sidebar {
+        position: fixed;
+        top: 54px;
+        left: 0;
+        height: calc(100vh - 54px);
+        width: 240px;
+        z-index: 35;
+        transform: translateX(-100%);
+        transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+        border-right: 1px solid var(--border-color);
+        box-shadow: var(--shadow-soft);
+    }
+    .sidebarOpen {
+        transform: translateX(0);
+    }
+
+    /* Content takes full width and is still the scroll region */
+    .content {
+        padding: 20px 16px;
+        grid-column: 1;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Shell on mobile: single-column, still fixed height */
+    .shell {
+        height: calc(100vh - 54px);
+        overflow: hidden;
+    }
+
+    /* Theme label hidden on very small screens */
+    .themeLabel { display: none; }
+}
+
+/* Tablet range: sidebar always visible but narrower */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .burgerBtn { display: none; }
+
+    .shell {
+        grid-template-columns: 180px minmax(0, 1fr);
+        height: calc(100vh - 54px); /* explicit height so children can use height:100% */
+    }
+
+    .sideLabel { font-size: 12px; }
+    .content { padding: 22px 18px; }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .burgerBtn { display: none; }
+    .shell {
+        grid-template-columns: 220px minmax(0, 1fr);
+        height: calc(100vh - 54px);
+    }
+}

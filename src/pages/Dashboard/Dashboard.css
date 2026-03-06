@@ -1,0 +1,442 @@
+.dash {
+    display: grid;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+    justify-items: stretch;
+}
+
+.headerRow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+
+}
+
+.subtitle {
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+/* ── Period selector tabs — equal-width grid ── */
+.seg {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+    width: 100%;
+    background: var(--surface-card);
+}
+
+.seg button {
+    padding: 10px 8px;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    text-align: center;
+}
+
+.seg button:hover {
+    background: var(--surface-ghost);
+    color: var(--text-primary);
+}
+
+.seg button.on {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    font-weight: 800;
+}
+
+.ghost {
+    padding: 8px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-pill);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.ghost:hover {
+    opacity: 0.75;
+}
+
+/* ── Range picker block ── */
+.rangeBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.rangeLabel {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+/* ── Custom date inputs ── */
+.customDates {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dateInput {
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-pill);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.dateInput:focus {
+    outline: none;
+    border-color: var(--accent, #6366f1);
+}
+
+.dateSep {
+    font-size: 13px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+/* ── Export / Refresh buttons ── */
+.controlActions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+}
+
+.controlActions .ghost {
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.grid {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    justify-items: stretch;
+    justify-content: stretch;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    align-items: start;
+}
+
+@media (min-width: 980px) {
+    .grid {
+        grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+    }
+}
+
+.card {
+    border: 1px solid var(--border-color);
+    background: var(--surface-card);
+    border-radius: 18px;
+    padding: 14px;
+    width: 100%;
+}
+
+.cardBody {
+    margin-top: 12px;
+}
+
+.cardTitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.topList {
+    display: grid;
+    gap: 8px;
+}
+
+.topRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.empty {
+    color: var(--text-muted);
+}
+
+.card {
+    width: 100%;
+    min-width: 0;
+    /* IMPORTANT for grid children */
+}
+
+.cardBody {
+    width: 100%;
+    min-width: 0;
+}
+
+.grid>.card {
+    width: 100%;
+    min-width: 0;
+}
+
+.recentCard {
+    grid-column: 2 / -1;
+    width: 100%;
+    min-height: 420px;
+    /* adjust until it matches the height you like */
+    display: flex;
+    flex-direction: column;
+}
+
+.recentCard .cardBody {
+    flex: 1;
+}
+
+.summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    width: 100%;
+}
+
+.summaryCard {
+    border: 1px solid var(--border-color);
+    background: var(--surface-card);
+    border-radius: 18px;
+    padding: 14px;
+    min-width: 0;
+}
+
+/* Keep Top spends panel height even when empty */
+.topSpendsCard {
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.topSpendsCard .cardBody,
+.topSpendsCard .topList,
+.topSpendsCard .empty {
+    flex: 1;
+}
+
+.kLabel {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.kValue {
+    font-size: 22px;
+    font-weight: 900;
+    margin-top: 4px;
+}
+
+.kSub {
+    margin-top: 6px;
+    font-size: 12px;
+}
+
+.kValueMuted {
+    color: var(--text-muted);
+}
+
+.muted {
+    color: var(--text-muted);
+}
+
+.up {
+    color: #16a34a;
+    font-weight: 800;
+}
+
+.down {
+    color: #dc2626;
+    font-weight: 800;
+}
+
+/* --- Top spends bar list --- */
+.topBarRow {
+    display: grid;
+    gap: 6px;
+}
+
+.topBarHead {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: baseline;
+}
+
+.topName {
+    font-weight: 700;
+}
+
+.topAmt {
+    font-weight: 800;
+}
+
+.barTrack {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--surface-ghost);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.barFill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--primary-bg);
+    opacity: 0.9;
+}
+
+.barMeta {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 12px;
+}
+
+.leftCol {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+}
+
+.cardTitleRow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    max-height: 20px;
+}
+
+.miniLink {
+    color: var(--accent);
+    font-weight: 800;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.miniLinkBtn {
+    color: var(--accent);
+    font-weight: 800;
+    font-size: 12px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Upcoming list */
+.upList {
+    display: grid;
+    gap: 10px;
+}
+
+.upRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    border-radius: 16px;
+    padding: 12px;
+}
+
+.upMain {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.upName {
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.upMeta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.pill {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-pill);
+}
+
+.dot {
+    color: var(--text-muted);
+}
+
+.upAmt {
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+/* ── Mobile responsive overrides ── */
+@media (max-width: 767px) {
+    .summary {
+        grid-template-columns: 1fr 1fr;
+    }
+    .grid {
+        grid-template-columns: 1fr !important;
+    }
+    .recentCard {
+        grid-column: 1 !important;
+        min-height: unset;
+    }
+    .leftCol {
+        grid-column: 1;
+    }
+    .kValue {
+        font-size: 18px;
+    }
+    .customDates {
+        flex-wrap: wrap;
+    }
+    .dateInput {
+        flex: 1;
+        min-width: 120px;
+    }
+    .seg button {
+        font-size: 13px;
+        padding: 9px 4px;
+    }
+}

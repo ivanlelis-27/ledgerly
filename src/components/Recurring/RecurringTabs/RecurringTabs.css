@@ -1,0 +1,64 @@
+.rTabs {
+    display: flex;
+    gap: 6px;
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.rTab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 11px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    color: var(--text-muted);
+    font-family: inherit;
+}
+
+.rTab:hover {
+    background: var(--surface-ghost);
+    color: var(--text-primary);
+}
+
+.rTabOn {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1 !important;
+    font-weight: 700;
+}
+
+.rTabIcon { font-size: 1.1rem; flex-shrink: 0; }
+
+.rTabText {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+}
+
+.rTabLabel {
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.rTabSub {
+    font-size: 0.7rem;
+    opacity: 0.65;
+    line-height: 1;
+}
+
+@media (max-width: 500px) {
+    .rTab { flex-direction: column; gap: 3px; padding: 8px 6px; }
+    .rTabText { align-items: center; }
+    .rTabSub { display: none; }
+}

@@ -1,0 +1,12 @@
+
+[functions.ai-advisor]
+enabled = true
+verify_jwt = true
+import_map = "./functions/ai-advisor/deno.json"
+entrypoint = "./functions/ai-advisor/index.ts"
+
+[functions.atlas-chat]
+enabled = true
+verify_jwt = true
+import_map = "./functions/atlas-chat/deno.json"
+entrypoint = "./functions/atlas-chat/index.ts"

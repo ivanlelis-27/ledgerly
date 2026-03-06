@@ -1,0 +1,147 @@
+.recFilters {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ── Row 1: Search + Add ── */
+.rfTop {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.rfSearchWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+    padding: 0 14px;
+    background: var(--surface-card);
+    transition: border-color 0.15s;
+}
+.rfSearchWrap:focus-within { border-color: #6366f1; }
+
+.rfSearchIcon { font-size: 1rem; flex-shrink: 0; }
+
+.rfSearch {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    padding: 11px 0;
+    font-family: inherit;
+    min-width: 0;
+}
+.rfSearch::placeholder { color: var(--text-muted); }
+
+.rfClear {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    font-size: 0.85rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
+}
+.rfClear:hover { color: var(--text-primary); background: var(--surface-ghost); }
+
+.rfAddBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 20px;
+    border-radius: 14px;
+    border: none;
+    background: #6366f1;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: opacity 0.15s, transform 0.1s;
+}
+.rfAddBtn:hover { opacity: 0.88; transform: translateY(-1px); }
+.rfAddBtn:active { transform: translateY(0); }
+
+/* ── Row 2: Status pills — equal-width grid ── */
+.rfPills {
+    display: grid;
+    /* Equal-width columns for each status option */
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+
+/* When "Clear" pill is visible: 6 items → 3+3 */
+.rfPills.rfHasClean {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.rfPill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-card);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+.rfPill:hover { border-color: #6366f1; color: var(--text-primary); }
+.rfPillOn {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: #6366f1;
+    color: #6366f1;
+}
+.rfPillClear {
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+.rfPillClear:hover { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; }
+
+/* ── Row 3: Selects ── */
+.rfSelects {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+}
+
+.rfSelect {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-card);
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: auto;
+    transition: border-color 0.15s;
+}
+.rfSelect:focus { outline: none; border-color: #6366f1; }
+
+/* ── Mobile (<480px) ── */
+@media (max-width: 480px) {
+    .rfTop { grid-template-columns: 1fr; }
+    .rfAddBtn { justify-content: center; }
+
+    /* Pills: 2+2+1 or 3+3 layout */
+    .rfPills { grid-template-columns: repeat(3, 1fr); }
+}

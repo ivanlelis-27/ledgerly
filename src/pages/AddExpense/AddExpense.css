@@ -1,0 +1,148 @@
+.addPage {
+    display: grid;
+    gap: 10px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.sub {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.card {
+    border: 1px solid var(--border-color);
+    background: var(--surface-card);
+    border-radius: 18px;
+    padding: 14px;
+}
+
+.addHeader {
+    display: grid;
+}
+
+.addTitleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.addHeaderRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* Modal */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.55);
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    z-index: 1000;
+}
+
+.modalCard {
+    width: min(540px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border-color);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: var(--shadow-soft);
+}
+
+.modalTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.modalTitle {
+    font-weight: 900;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.iconBtn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    cursor: pointer;
+}
+
+.listTopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 8px 0 10px;
+}
+
+.listLabel {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+
+.miniAddBtn {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-pill);
+    color: var(--text-primary);
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+    transition: transform 120ms ease, filter 120ms ease;
+}
+
+.miniAddBtn:hover {
+    filter: brightness(0.97);
+    transform: translateY(-1px);
+}
+
+.miniAddBtn:active {
+    transform: translateY(0);
+}
+
+.listSpacer {
+    flex: 1;
+}
+
+@media (max-width: 767px) {
+    .addTitleRow {
+        flex-wrap: wrap;
+    }
+    .modalOverlay {
+        padding: 8px;
+        align-items: flex-end;
+    }
+    .modalCard {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 18px 18px 0 0;
+        padding: 16px;
+    }
+}
+
+@media (min-width: 768px) {
+    .modalCard {
+        padding: 24px;
+    }
+}

@@ -1,0 +1,221 @@
+.salaryPage {
+    display: grid;
+    gap: 14px;
+}
+
+.pageHead .title {
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.pageHead .sub {
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-size: 13px;
+}
+
+.salaryGrid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    align-items: stretch;
+}
+
+.card {
+    border: 1px solid var(--border-color);
+    background: var(--surface-card);
+    border-radius: 18px;
+    padding: 14px;
+}
+
+.cardTitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.incomeRow {
+    display: grid;
+    grid-template-columns: 38px 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.currency {
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    font-weight: 900;
+}
+
+.incomeInput {
+    height: 44px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-input);
+    padding: 0 12px;
+    outline: none;
+}
+
+.primaryBtn {
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.metrics {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metric .k {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.metric .v {
+    font-size: 18px;
+    font-weight: 900;
+    margin-top: 2px;
+}
+
+.progressWrap {
+    margin-top: 12px;
+    display: grid;
+    gap: 8px;
+}
+
+.progressHead {
+    display: flex;
+    justify-content: space-between;
+}
+
+.muted {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.barTrack {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--surface-ghost);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.barFill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--primary-bg);
+    opacity: 0.9;
+}
+
+.bigStat {
+    font-size: 26px;
+    font-weight: 1000;
+}
+
+/* Burn rate header with info */
+.cardTitleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+/* Info icon */
+.infoWrap {
+    position: relative;
+}
+
+.infoBtn {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    display: grid;
+    place-items: center;
+    color: var(--text-muted);
+    cursor: help;
+}
+
+.infoBtn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.infoBtn:hover,
+.infoBtn:focus-visible {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 260px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-overlay);
+    box-shadow: var(--shadow-soft);
+    font-size: 12px;
+    color: var(--text-primary);
+    line-height: 1.4;
+
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 160ms ease, transform 160ms ease;
+    z-index: 10;
+}
+
+/* Show tooltip on hover OR keyboard focus */
+.infoWrap:hover .tooltip,
+.infoBtn:focus-visible+.tooltip {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+    .salaryGrid {
+        grid-template-columns: 1fr;
+    }
+    .incomeRow {
+        grid-template-columns: 38px 1fr;
+        grid-template-rows: 1fr auto;
+    }
+    .incomeRow .primaryBtn {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+    .metrics {
+        grid-template-columns: 1fr 1fr;
+    }
+    .tooltip {
+        right: auto;
+        left: 0;
+        width: 220px;
+    }
+}

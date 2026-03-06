@@ -1,0 +1,557 @@
+/* =====================================================
+   What-If Simulator
+   ===================================================== */
+
+.sim-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ---------- Header ---------- */
+.sim-header {
+    margin-bottom: 1.75rem;
+}
+
+.sim-title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin: 0 0 0.3rem;
+}
+
+.sim-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* ---------- Two-column layout ---------- */
+.sim-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* ---------- Left panel ---------- */
+.sim-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* ---------- Section card ---------- */
+.sim-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.sim-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+    gap: 0.75rem;
+}
+
+.sim-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.sim-card-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.18rem 0.6rem;
+    border-radius: 99px;
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    flex-shrink: 0;
+}
+
+/* ---------- Toggle-all button ---------- */
+.sim-toggle-all {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s;
+    white-space: nowrap;
+}
+
+.sim-toggle-all:hover {
+    color: var(--text-primary);
+}
+
+/* ---------- Item rows ---------- */
+.sim-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.75rem 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.1s;
+    user-select: none;
+}
+
+.sim-item:last-child {
+    border-bottom: none;
+}
+
+.sim-item:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .sim-item:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.sim-item.removed {
+    opacity: 0.45;
+}
+
+/* Checkbox */
+.sim-checkbox {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    accent-color: #6366f1;
+    cursor: pointer;
+}
+
+/* Item info */
+.sim-item-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.sim-item-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sim-item-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.1rem;
+}
+
+/* Amount */
+.sim-item-amount {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sim-item-amount.removed-amount {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+/* ---------- Custom expense add row ---------- */
+.sim-custom-row {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.85rem 1.2rem;
+    border-top: 1px solid var(--border-color);
+    align-items: center;
+}
+
+.sim-custom-input {
+    flex: 1;
+    padding: 0.45rem 0.75rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-pill);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: border-color 0.15s;
+}
+
+.sim-custom-input:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+.sim-custom-add {
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    border: none;
+    background: #6366f1;
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+}
+
+.sim-custom-add:hover {
+    opacity: 0.85;
+}
+
+.sim-custom-add:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ---------- Empty ---------- */
+.sim-empty {
+    padding: 1.25rem 1.2rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ---------- Right panel (sticky) ---------- */
+.sim-right {
+    position: sticky;
+    top: 76px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Impact card */
+.sim-impact-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.sim-impact-header {
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Big impact number */
+.sim-impact-hero {
+    padding: 1.25rem 1.2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sim-impact-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+}
+
+.sim-impact-value {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--text-primary);
+    transition: color 0.3s;
+}
+
+.sim-impact-value.positive {
+    color: #10b981;
+}
+
+.sim-impact-value.negative {
+    color: #ef4444;
+}
+
+.sim-impact-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+/* Stats grid */
+.sim-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-color);
+    border-top: 1px solid var(--border-color);
+}
+
+.sim-stat {
+    background: var(--surface-card);
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.sim-stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+}
+
+.sim-stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.sim-stat-value.green {
+    color: #10b981;
+}
+
+.sim-stat-value.red {
+    color: #ef4444;
+}
+
+.sim-stat-value.accent {
+    color: #6366f1;
+}
+
+/* Freed cash banner */
+.sim-freed-banner {
+    margin: 0 1.2rem 1.2rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.1);
+    color: #065f46;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+[data-theme="dark"] .sim-freed-banner {
+    background: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+}
+
+.sim-freed-banner.negative {
+    background: rgba(239, 68, 68, 0.08);
+    color: #991b1b;
+}
+
+[data-theme="dark"] .sim-freed-banner.negative {
+    color: #fca5a5;
+}
+
+/* ---------- Goals timeline card ---------- */
+.sim-goals-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.sim-goals-header {
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.sim-goal-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.85rem 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sim-goal-row:last-child {
+    border-bottom: none;
+}
+
+.sim-goal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.sim-goal-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.sim-goal-months {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #6366f1;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sim-goal-track {
+    height: 5px;
+    background: var(--border-color);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.sim-goal-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s ease;
+}
+
+.sim-goal-compare {
+    font-size: 0.73rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.sim-goal-compare .faster {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.sim-goal-compare .slower {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* ---------- Savings rate gauge ---------- */
+.sim-gauge-wrap {
+    padding: 1rem 1.2rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sim-gauge-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sim-gauge-track {
+    height: 10px;
+    background: var(--border-color);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.sim-gauge-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s ease, background 0.5s ease;
+}
+
+.sim-gauge-hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+/* ---------- No-salary warning ---------- */
+.sim-warn {
+    background: rgba(245, 158, 11, 0.1);
+    color: #92400e;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+[data-theme="dark"] .sim-warn {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fcd34d;
+}
+
+/* ---------- Loading ---------- */
+.sim-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* ---------- Reset button ---------- */
+.sim-reset-btn {
+    background: none;
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.4rem 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.sim-reset-btn:hover {
+    border-color: var(--text-muted);
+    color: var(--text-primary);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 767px) {
+    .sim-layout {
+        grid-template-columns: 1fr;
+    }
+    .sim-right {
+        position: static;
+    }
+    .sim-custom-row {
+        flex-wrap: wrap;
+    }
+    .sim-custom-input {
+        min-width: 0;
+    }
+    .sim-header {
+        margin-bottom: 1.25rem;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 900px) {
+    .sim-layout {
+        grid-template-columns: 1fr;
+    }
+    .sim-right {
+        position: static;
+    }
+}

@@ -1,0 +1,446 @@
+.primaryBtn {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+
+    border: 1px solid var(--border-color, rgb(30 41 59));
+    background: var(--primary, rgb(226 232 240));
+    color: var(--primary-text, rgb(2 6 23));
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.primaryBtn:hover {
+    filter: brightness(0.95);
+}
+
+.expenseForm {
+    display: grid;
+    gap: 14px;
+}
+
+.expenseForm .primaryBtn {
+    margin-top: 4px;
+}
+
+.primaryBtn {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 160ms ease, transform 160ms ease;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.primaryBtn:hover {
+    background: var(--primary-bg-hover);
+}
+
+.primaryBtn:active {
+    transform: translateY(1px);
+}
+
+.primaryBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.expenseForm {
+    display: grid;
+    gap: 12px;
+}
+
+.row2 {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 640px) {
+    .row2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.amountField {
+    position: relative;
+}
+
+.amountField .currency {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 500;
+    opacity: 0.7;
+    pointer-events: none;
+    background: none;
+    border: none;
+}
+
+.amountField .amountInput {
+    padding-left: 28px;
+    /* space for ₱ */
+}
+
+.field label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.hint {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.categoryRow {
+    position: relative;
+}
+
+.clearBtn {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    cursor: pointer;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-pill);
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 12px;
+}
+
+.chipEmoji {
+    font-size: 14px;
+}
+
+.recentRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.recentChip {
+    padding: 7px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.results {
+    margin-top: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-card);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.resultItem {
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    cursor: pointer;
+    background: transparent;
+}
+
+.resultItem:hover {
+    background: var(--surface-active);
+}
+
+.picked {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.primaryBtn {
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.primaryBtn:hover {
+    background: var(--primary-bg-hover);
+}
+
+.categoryChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0rem;
+    margin-top: 8px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 120ms ease, transform 120ms ease;
+}
+
+.chip:hover {
+    transform: translateY(-1px);
+}
+
+.chip.active {
+    background: var(--surface-active);
+    border-color: var(--border-color);
+}
+
+.emoji {
+    font-size: 14px;
+}
+
+.categoryChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 8px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 120ms ease, transform 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.chip:hover {
+    transform: translateY(-1px);
+}
+
+/* ✅ Clear selected state */
+.chip.active {
+    background: var(--primary-bg);
+    border-color: transparent;
+    color: var(--primary-text);
+}
+
+/* Make the emoji look good even when active */
+.chip.active .emoji {
+    filter: saturate(1.05);
+}
+
+/* Keyboard accessibility */
+.chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.emoji {
+    font-size: 14px;
+}
+
+/* Make Frequency column narrower on desktop */
+@media (min-width: 980px) {
+    .rmScheduleGrid {
+        grid-template-columns: 260px 1fr 1fr;
+        /* Frequency shorter */
+        align-items: end;
+    }
+}
+
+/* Next billing date + Recalculate on the same line */
+.rmNextRow {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Override rmMini default margin-top so it doesn't drop below */
+.rmRecalc {
+    margin-top: 0;
+    height: 44px;
+    padding: 0 12px;
+    white-space: nowrap;
+}
+
+/* =========================
+   FIX: Recalculate alignment
+   (paste at the very bottom)
+   ========================= */
+
+/* Ensure schedule grid cells align to the bottom consistently */
+.rmScheduleGrid>div {
+    display: grid;
+    align-content: end;
+    /* bottom-align label+field blocks */
+}
+
+/* Make Next billing date row match input height + align perfectly */
+.rmNextRow {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: stretch;
+    /* 🔥 makes input + button same height */
+}
+
+/* Force same height as other fields */
+.rmNextRow .rmInput {
+    height: 44px;
+}
+
+/* Button matches input height + centers text perfectly */
+.rmRecalc {
+    margin-top: 0 !important;
+    /* override rmMini margin */
+    height: 44px;
+    padding: 0 12px;
+    white-space: nowrap;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    line-height: 1;
+    /* removes baseline drift */
+}
+
+/* === Schedule layout fixes === */
+
+/* Keep grid aligned cleanly */
+.rmScheduleGrid {
+    align-items: end;
+}
+
+/* Frequency column shorter */
+.rmFreqSelect {
+    width: 220px;
+}
+
+/* Frequency + Recalculate inline */
+.rmFieldRow {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Recalculate button = same height as inputs */
+.rmRecalc {
+    margin-top: 0 !important;
+    height: 44px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+/* Schedule layout: force 4 columns on desktop */
+@media (min-width: 980px) {
+    .rmScheduleGrid {
+        display: grid;
+        grid-template-columns:
+            220px
+            /* Frequency (short) */
+            1fr
+            /* Start date */
+            1fr
+            /* Next billing date */
+            auto;
+        /* Recalculate button */
+        gap: 10px;
+        align-items: end;
+    }
+}
+
+/* Button matches input height */
+.rmRecalc {
+    height: 44px;
+    padding: 0 14px;
+    margin-top: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mobile fallback */
+@media (max-width: 520px) {
+    .rmFieldRow {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rmFreqSelect {
+        width: 100%;
+    }
+}
+
+/* ===== Schedule: 4 columns (force override) ===== */
+@media (min-width: 980px) {
+    .rmGrid3.rmScheduleGrid {
+        grid-template-columns: 220px 1fr 1fr auto !important;
+        align-items: end;
+    }
+}
+
+/* Frequency select shorter */
+.rmGrid3.rmScheduleGrid .rmFreqSelect {
+    width: 220px;
+}
+
+/* Recalculate button aligned + same height */
+.rmGrid3.rmScheduleGrid .rmRecalc {
+    height: 2.8rem;
+    padding: 0 14px;
+    margin-top: 0 !important;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: end;
+    /* important */
+}

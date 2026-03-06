@@ -1,0 +1,475 @@
+/* =====================================================
+   Financial Health Score Page
+   ===================================================== */
+
+.health-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ---------- Header ---------- */
+.health-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.health-title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin: 0 0 0.25rem;
+}
+
+.health-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.health-updated {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: right;
+}
+
+/* ---------- Hero row ---------- */
+.health-hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: center;
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 2rem 2.5rem;
+}
+
+/* ---------- Gauge ---------- */
+.health-gauge-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.health-gauge-svg {
+    display: block;
+    overflow: visible;
+}
+
+.health-gauge-track {
+    fill: none;
+    stroke: var(--border-color);
+    stroke-linecap: round;
+}
+
+.health-gauge-fill {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1),
+        stroke 0.5s ease;
+}
+
+.health-gauge-center {
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+.health-score-num {
+    font-size: 2.6rem;
+    font-weight: 800;
+    fill: var(--text-primary);
+}
+
+.health-score-sub {
+    font-size: 0.8rem;
+    fill: var(--text-muted, #9ca3af);
+}
+
+.health-grade-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    letter-spacing: -0.02em;
+}
+
+/* ---------- Hero right content ---------- */
+.health-hero-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.health-verdict {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.015em;
+    margin: 0;
+}
+
+.health-verdict-sub {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin: 0;
+}
+
+/* Progress overview bars */
+.health-overview-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.health-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.health-bar-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    width: 130px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.health-bar-track {
+    flex: 1;
+    height: 7px;
+    background: var(--border-color);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.health-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.health-bar-pts {
+    font-size: 0.75rem;
+    font-weight: 700;
+    width: 50px;
+    text-align: right;
+    color: var(--text-primary);
+    flex-shrink: 0;
+}
+
+/* ---------- Section title ---------- */
+.health-section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* ---------- Component breakdown grid ---------- */
+.health-breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.health-component-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s;
+}
+
+.health-component-card:hover {
+    transform: translateY(-2px);
+}
+
+.health-component-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+}
+
+.health-component-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.health-component-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.health-component-score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+}
+
+.health-component-pts {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+}
+
+.health-component-max {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.health-component-bar-track {
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.health-component-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.health-component-detail {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* ---------- Breakdown status chips ---------- */
+.health-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    width: fit-content;
+}
+
+.health-chip.great {
+    background: rgba(16, 185, 129, 0.12);
+    color: #065f46;
+}
+
+.health-chip.good {
+    background: rgba(99, 102, 241, 0.12);
+    color: #4338ca;
+}
+
+.health-chip.ok {
+    background: rgba(245, 158, 11, 0.12);
+    color: #92400e;
+}
+
+.health-chip.poor {
+    background: rgba(239, 68, 68, 0.10);
+    color: #991b1b;
+}
+
+[data-theme="dark"] .health-chip.great {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+}
+
+[data-theme="dark"] .health-chip.good {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+}
+
+[data-theme="dark"] .health-chip.ok {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+}
+
+[data-theme="dark"] .health-chip.poor {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+}
+
+/* ---------- Recommendations ---------- */
+.health-recs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.health-rec-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    transition: transform 0.15s;
+}
+
+.health-rec-card:hover {
+    transform: translateY(-2px);
+}
+
+.health-rec-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.health-rec-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.health-rec-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.health-rec-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* ---------- Key metrics summary row ---------- */
+.health-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+.health-metric {
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.health-metric-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+}
+
+.health-metric-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.health-metric-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+/* ---------- No salary warning ---------- */
+.health-warn {
+    background: rgba(245, 158, 11, 0.1);
+    color: #92400e;
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+[data-theme="dark"] .health-warn {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fcd34d;
+}
+
+/* ---------- Loading ---------- */
+.health-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem;
+    color: var(--text-muted);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 767px) {
+    .health-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 1.25rem;
+        gap: 1.25rem;
+    }
+    .health-gauge-wrap {
+        margin: 0 auto;
+    }
+    .health-bar-label {
+        width: 90px;
+        font-size: 0.72rem;
+    }
+    .health-verdict {
+        font-size: 1.2rem;
+        text-align: left;
+    }
+    .health-verdict-sub {
+        text-align: left;
+    }
+    .health-breakdown-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .health-recs-grid {
+        grid-template-columns: 1fr;
+    }
+    .health-metrics-row {
+        grid-template-columns: 1fr 1fr;
+    }
+    .health-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

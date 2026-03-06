@@ -1,0 +1,376 @@
+/* =====================================================
+   Settings Page
+   ===================================================== */
+
+.st-page {
+    max-width: 780px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* ---------- Page header ---------- */
+.st-header {
+    margin-bottom: 0.25rem;
+}
+
+.st-title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin: 0 0 0.3rem 0;
+}
+
+.st-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* ---------- Section ---------- */
+.st-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: var(--surface-card);
+    overflow: hidden;
+}
+
+.st-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1rem 1.25rem 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.st-section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.st-section-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* ---------- Row ---------- */
+.st-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.25rem;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.12s;
+}
+
+.st-row:last-child {
+    border-bottom: none;
+}
+
+.st-row-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.st-row-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.st-row-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* ---------- Toggle switch ---------- */
+.st-toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.st-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.st-toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border-color);
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.st-toggle input:checked+.st-toggle-track {
+    background: var(--accent, #6366f1);
+}
+
+.st-toggle-track::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.st-toggle input:checked+.st-toggle-track::after {
+    transform: translateX(20px);
+}
+
+/* ---------- Select / Button controls ---------- */
+.st-select {
+    padding: 0.45rem 0.85rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-pill);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    min-width: 130px;
+    transition: border-color 0.15s;
+}
+
+.st-select:focus {
+    outline: none;
+    border-color: var(--accent, #6366f1);
+}
+
+/* ---------- Action buttons ---------- */
+.st-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.48rem 1rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-pill);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s, transform 0.1s, background 0.15s;
+}
+
+.st-action-btn:hover {
+    border-color: var(--accent, #6366f1);
+    transform: translateY(-1px);
+}
+
+.st-action-btn:active {
+    transform: translateY(0);
+}
+
+.st-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.st-action-btn.accent {
+    background: var(--accent, #6366f1);
+    color: #fff;
+    border-color: transparent;
+}
+
+.st-action-btn.accent:hover {
+    opacity: 0.88;
+}
+
+.st-action-btn.danger {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.st-action-btn.danger:hover {
+    background: rgba(239, 68, 68, 0.07);
+    border-color: #ef4444;
+}
+
+/* ---------- File upload label ---------- */
+.st-file-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.48rem 1rem;
+    border-radius: 10px;
+    border: 1.5px dashed var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.st-file-btn:hover {
+    border-color: var(--accent, #6366f1);
+    background: color-mix(in srgb, var(--accent, #6366f1) 5%, transparent);
+}
+
+.st-file-btn input {
+    display: none;
+}
+
+/* ---------- Status message ---------- */
+.st-status {
+    margin: 0 1.25rem 1rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.83rem;
+    font-weight: 500;
+}
+
+.st-status.ok {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.st-status.err {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.st-status.info {
+    background: color-mix(in srgb, var(--accent, #6366f1) 12%, transparent);
+    color: var(--accent, #6366f1);
+}
+
+/* ---------- About card ---------- */
+.st-about-version {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.st-about-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.st-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.65rem;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: color-mix(in srgb, var(--accent, #6366f1) 12%, transparent);
+    color: var(--accent, #6366f1);
+    flex-shrink: 0;
+}
+
+/* ---------- Danger zone ---------- */
+.st-danger-section {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.st-danger-section .st-section-header {
+    border-bottom-color: rgba(239, 68, 68, 0.2);
+}
+
+.st-danger-section .st-section-title {
+    color: #ef4444;
+}
+
+/* ---------- Confirm modal ---------- */
+.st-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.st-modal {
+    background: var(--surface-card);
+    border-radius: 16px;
+    padding: 1.6rem;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    animation: st-pop 0.15s ease;
+}
+
+@keyframes st-pop {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.st-modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem;
+}
+
+.st-modal-body {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0 0 1.4rem;
+}
+
+.st-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+}
+
+/* ---------- Dark mode ---------- */
+[data-theme="dark"] .st-page {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .st-status.ok {
+    background: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+}
+
+[data-theme="dark"] .st-status.err {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+}
