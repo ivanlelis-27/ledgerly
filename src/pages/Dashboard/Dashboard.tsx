@@ -116,7 +116,6 @@ type RangeKey = "today" | "week" | "month" | "custom";
 
 // ─── Component ────────────────────────────────────────────────
 export default function Dashboard() {
-    const [showAll, setShowAll] = useState(false);
     const [range, setRange] = useState<RangeKey>("month");
     const [customStart, setCustomStart] = useState(localMonthStart);
     const [customEnd, setCustomEnd] = useState(localToday);
@@ -450,13 +449,11 @@ export default function Dashboard() {
                 <div className="card recentCard">
                     <div className="cardTitleRow">
                         <div className="cardTitle">Recent expenses</div>
-                        <button className="miniLinkBtn" onClick={() => setShowAll(v => !v)}>
-                            {showAll ? "Show less" : "View all →"}
-                        </button>
+                        <Link className="miniLink" to="/add">View all →</Link>
                     </div>
                     <div className="cardBody">
                         <ExpenseList
-                            expenses={showAll ? filtered : filtered.slice(0, 4)}
+                            expenses={filtered.slice(0, 4)}
                             onDelete={handleDelete}
                         />
                     </div>
