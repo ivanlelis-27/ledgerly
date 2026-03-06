@@ -7,25 +7,23 @@ export default function RequireAuth({ children }: { children: ReactNode }) {
     const [authed, setAuthed] = useState(false);
 
     useEffect(() => {
-        let mounted = true;
-
-        supabase.auth.getSession().then(({ data }) => {
-            if (!mounted) return;
-            setAuthed(!!data.session);
+        // onAuthStateChange fires reliably after OAuth hash is processed,
+        // so we use it as the single source of truth for initial load too.
+        const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+            setAuthed(!!session);
             setLoading(false);
         });
 
-        const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-            setAuthed(!!session);
-        });
+        // Kick off session check so onAuthStateChange fires immediately
+        // for already-logged-in users (no redirect needed).
+        supabase.auth.getSession();
 
         return () => {
-            mounted = false;
             sub.subscription.unsubscribe();
         };
     }, []);
 
-    if (loading) return null; // or a small loader
+    if (loading) return null;
     if (!authed) return <Navigate to="/login" replace />;
 
     return <>{children}</>;
