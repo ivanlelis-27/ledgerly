@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { routes } from "./routes";
 import Layout from "../components/Layout/Layout";
-import InstallBanner from "../components/InstallBanner/InstallBanner";
+// import InstallBanner from "../components/InstallBanner/InstallBanner";
 
 const NO_LAYOUT_PREFIXES = ["/login", "/register"];
 
@@ -22,7 +22,7 @@ export default function App() {
     return (
         <>
             {noLayout ? content : <Layout>{content}</Layout>}
-            <InstallBanner />
+            {/* <InstallBanner /> */}
         </>
     );
 }
