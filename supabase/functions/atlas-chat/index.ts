@@ -63,50 +63,71 @@ USER'S CURRENT FINANCIAL DATA (use this to ground your advice):
 - Number of transactions this month: ${ctx.transactionCount}`;
 }
 
-function checkIvanEasterEgg(message: string): string | null {
+function detectIvanIntent(message: string) {
   const msg = message.toLowerCase();
 
-  // Trigger 1 — user just says "ivan"
-  if (msg.includes("ivan") && !msg.includes("lelis")) {
-    return `Hmm… Ivan?
+  const mentionsIvan = /\bivan\b/.test(msg);
+  const mentionsFull = /ivan\s+lelis/.test(msg);
 
-I'm not entirely sure who you're referring to. "Ivan" is a pretty common name after all.
+  const askingAboutIvan =
+    /who\s+is\s+ivan|tell\s+me\s+about\s+ivan|what\s+about\s+ivan|do\s+you\s+know\s+ivan/
+      .test(
+        msg,
+      );
 
-Although… I *do* know one Ivan. Ivan Lelis. He's… well… let's just say he's somewhat important to my existence.
+  return {
+    mentionsIvan,
+    mentionsFull,
+    askingAboutIvan,
+  };
+}
 
-But anyway, back to your finances — what would you like help with today?`;
+function generateIvanResponse(intent: {
+  mentionsIvan: boolean;
+  mentionsFull: boolean;
+  askingAboutIvan: boolean;
+}) {
+  const unsureReplies = [
+    `Hmm… Ivan? That's a pretty common name. I'm not sure which Ivan you're referring to.`,
+    `Ivan? I know a few historical Ivans, but I'm guessing that's not who you mean.`,
+    `Ivan… that name sounds familiar, but I might need a bit more context.`,
+  ];
+
+  const creatorReplies = [
+    `Ah. Ivan Lelis. Yes — I know him quite well. He's actually the developer who created Ledgerly and, by extension… me. You could say he's my creator. Or possibly my supervisor. The hierarchy is still unclear.`,
+    `Ivan Lelis is the developer behind Ledgerly. He's a software engineer working at Avanza Inc. and apparently decided that building a financial AI advisor was a good use of his free time.`,
+    `Yes, Ivan Lelis built this app. He's a developer at Avanza Inc. who enjoys building systems, experimenting with AI, and occasionally hiding strange easter eggs like this one.`,
+  ];
+
+  const loreReplies = [
+    `From what I understand, Ivan designed Ledgerly to help people understand their finances better. Then he added me, Atlas, to provide guidance. So technically, if my advice is helpful, you can thank him.`,
+    `Ivan built Ledgerly to help users track expenses and make smarter financial decisions. My job is simply to make that data more useful.`,
+    `Ivan spends a lot of time building systems and improving this app. I'm mostly here to help interpret the numbers he helps collect.`,
+  ];
+
+  if (intent.mentionsFull) {
+    return (
+      creatorReplies[Math.floor(Math.random() * creatorReplies.length)] +
+      "\n\n" +
+      loreReplies[Math.floor(Math.random() * loreReplies.length)] +
+      "\n\nAnyway, let's get back to your finances — what would you like to explore?"
+    );
   }
 
-  // Trigger 2 — user mentions Ivan Lelis directly
-  if (msg.includes("ivan lelis")) {
-    return `Oh. You mean **Ivan Lelis**.
-
-Yes, I know him.
-
-He's technically my creator — the developer who built Ledgerly and, well… me. You could say he's my father. Or maybe my unpaid intern. The relationship is still under discussion.
-
-Ivan is a software developer currently working at **Avanza Inc.**. From what I understand, he spends his days building systems, fixing bugs, and occasionally talking to an AI that he himself created.
-
-He's also responsible for making sure I help people manage their finances better — so if my advice is useful, you can thank him. If it's terrible… that's probably also his fault.
-
-Anyway, enough about him. Let's get back to *your* finances — what would you like to explore?`;
+  if (intent.askingAboutIvan) {
+    return (
+      `Ivan… I'm not entirely sure which Ivan you mean. However, there *is* someone named Ivan Lelis connected to this app.` +
+      "\n\n" +
+      creatorReplies[Math.floor(Math.random() * creatorReplies.length)] +
+      "\n\nNow, speaking of helpful things — want to review your spending this month?"
+    );
   }
 
-  // Trigger 3 — user asks more about Ivan
-  if (
-    msg.includes("who is ivan") ||
-    msg.includes("tell me about ivan") ||
-    msg.includes("more about ivan")
-  ) {
-    return `Ah, you're curious about Ivan.
-
-Ivan Lelis is the developer behind Ledgerly — the app you're using right now. He's the one who designed the system that tracks expenses, analyzes financial habits, and built me, Atlas, to help users make smarter financial decisions.
-
-From what I can tell, he enjoys building useful tools, experimenting with AI systems, and occasionally hiding strange easter eggs inside his apps. This conversation might actually be one of them.
-
-So if you ever find Ledgerly helpful… credit goes to him.
-
-Now, speaking of helpful things — want to review your spending or look for ways to increase your savings?`;
+  if (intent.mentionsIvan) {
+    return (
+      unsureReplies[Math.floor(Math.random() * unsureReplies.length)] +
+      "\n\nAlthough… there *is* an Ivan Lelis who built Ledgerly. Interesting coincidence."
+    );
   }
 
   return null;
@@ -120,11 +141,11 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
     const message: string = body.message ?? "";
-    // Easter egg check
-    const easterEgg = checkIvanEasterEgg(message);
+    const ivanIntent = detectIvanIntent(message);
+    const ivanReply = generateIvanResponse(ivanIntent);
 
-    if (easterEgg) {
-      return new Response(JSON.stringify({ reply: easterEgg }), {
+    if (ivanReply) {
+      return new Response(JSON.stringify({ reply: ivanReply }), {
         headers: { "Content-Type": "application/json", ...CORS },
       });
     }
