@@ -3,15 +3,21 @@ import { supabase } from "./supabase";
 
 export function useHealthInsights(score: any) {
   const [insights, setInsights] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!score) return;
 
     async function run() {
+      setLoading(true);
+
       const { data } = await supabase.auth.getSession();
       const userId = data.session?.user?.id;
 
-      if (!userId) return;
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
 
       const fingerprint = JSON.stringify({
         income: score.monthlyIncome,
@@ -37,10 +43,12 @@ export function useHealthInsights(score: any) {
       if (!error && resp?.insights) {
         setInsights(resp.insights);
       }
+
+      setLoading(false);
     }
 
     run();
   }, [score]);
 
-  return insights;
+  return { insights, loading };
 }

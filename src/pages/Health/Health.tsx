@@ -378,7 +378,7 @@ export default function Health() {
     IMPORTANT FIX:
     Hook must run BEFORE conditional returns
     */
-    const aiInsights = useHealthInsights(score ?? null);
+    const { insights: aiInsights, loading: aiLoading } = useHealthInsights(score ?? null);
 
     if (loading) return <div className="health-loading">Calculating your score…</div>;
 
@@ -538,22 +538,36 @@ export default function Health() {
             </div>
 
             {/* ATLAS AI INSIGHTS */}
-            {aiInsights.length > 0 && (
+            {(aiLoading || aiInsights.length > 0) && (
                 <div>
                     <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>
                         🤖 Atlas Insights
                     </p>
 
                     <div className="health-recs-grid">
-                        {aiInsights.map((i: any, idx: number) => (
-                            <div key={idx} className="health-rec-card">
-                                <div className="health-rec-icon">🧠</div>
-                                <div className="health-rec-body">
-                                    <div className="health-rec-title">{i.title}</div>
-                                    <div className="health-rec-desc">{i.body}</div>
+
+                        {aiLoading &&
+                            Array.from({ length: 3 }).map((_, i) => (
+                                <div key={i} className="health-rec-card skeleton-card">
+                                    <div className="health-rec-icon skeleton-icon" />
+                                    <div className="health-rec-body">
+                                        <div className="skeleton-line skeleton-title" />
+                                        <div className="skeleton-line" />
+                                        <div className="skeleton-line short" />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+
+                        {!aiLoading &&
+                            aiInsights.map((i: any, idx: number) => (
+                                <div key={idx} className="health-rec-card">
+                                    <div className="health-rec-icon">🧠</div>
+                                    <div className="health-rec-body">
+                                        <div className="health-rec-title">{i.title}</div>
+                                        <div className="health-rec-desc">{i.body}</div>
+                                    </div>
+                                </div>
+                            ))}
                     </div>
                 </div>
             )}
