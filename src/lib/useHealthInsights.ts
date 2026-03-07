@@ -17,8 +17,10 @@ export function useHealthInsights(score: any) {
         income: score.monthlyIncome,
         expenses: score.monthlyExpenses,
         recurring: score.monthlyRecurring,
-        savingsRate: score.savingsRate,
-        goals: score.components?.find((c: any) => c.id === "goals")?.pts ?? 0,
+        savingsRate: Number(score.savingsRate.toFixed(1)),
+        expenseRatio: Number(score.expenseRatio.toFixed(1)),
+        subscriptionBurden: Number(score.subscriptionBurden.toFixed(1)),
+        score: score.total,
       });
 
       const { data: resp, error } = await supabase.functions.invoke(
@@ -29,7 +31,7 @@ export function useHealthInsights(score: any) {
             fingerprint,
             score,
           },
-        }
+        },
       );
 
       if (!error && resp?.insights) {

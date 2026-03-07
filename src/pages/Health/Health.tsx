@@ -378,7 +378,7 @@ export default function Health() {
     IMPORTANT FIX:
     Hook must run BEFORE conditional returns
     */
-    const aiInsights = useHealthInsights(score);
+    const aiInsights = useHealthInsights(score ?? null);
 
     if (loading) return <div className="health-loading">Calculating your score…</div>;
 

@@ -5,6 +5,10 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+function clean(n: number) {
+  return Number(n.toFixed(1));
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: CORS });
@@ -40,17 +44,31 @@ Deno.serve(async (req) => {
     /* ---------- Call Groq ---------- */
 
     const prompt = `
-You are Atlas, a financial advisor AI.
+You are Atlas, the AI financial advisor inside Ledgerly.
 
-Based on this financial health score data:
+You are analyzing a user's financial health data.
 
-Score: ${score.total}/100
-Savings rate: ${score.savingsRate}%
-Expense ratio: ${score.expenseRatio}%
-Subscription burden: ${score.subscriptionBurden}%
-Monthly surplus: ${score.monthlySurplus}
+Financial metrics:
+- Score: ${clean(score.total)}/100
+- Savings rate: ${clean(score.savingsRate)}%
+- Expense ratio: ${clean(score.expenseRatio)}%
+- Subscription burden: ${clean(score.subscriptionBurden)}%
+- Monthly surplus: ₱${Math.round(score.monthlySurplus)}
 
-Provide 2–3 concise financial insights.
+Your job is NOT to repeat the numbers.
+
+Instead:
+- Explain what the numbers mean
+- Identify risks or opportunities
+- Suggest concrete improvements
+
+Rules:
+- Do NOT repeat the numbers shown above
+- Do NOT include percentages or currency values in the output
+- Do NOT restate metrics
+- Focus only on interpretation and financial advice
+- Speak like a human financial coach
+- Maximum 3 insights
 
 Respond ONLY as JSON:
 
@@ -91,7 +109,12 @@ Respond ONLY as JSON:
     let insights = [];
 
     try {
-      insights = JSON.parse(raw);
+      const cleaned = raw
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+      insights = JSON.parse(cleaned);
     } catch {
       insights = [];
     }
