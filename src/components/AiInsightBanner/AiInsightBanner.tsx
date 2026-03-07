@@ -58,7 +58,7 @@ export default function AiInsightBanner({ insights, loading, error, generatedAt,
     // ── Loading skeleton ──
     if (loading) {
         return (
-            <div className="aib aib--loading" aria-busy="true" aria-label="Loading AI insights">
+            <div className="aib aib--loading" aria-busy="true" aria-label="Loading Atlas insights">
                 <div className="aib__inner aib__skeleton">
                     <div className="aib__skel-badge" />
                     <div className="aib__skel-title" />
@@ -77,12 +77,12 @@ export default function AiInsightBanner({ insights, loading, error, generatedAt,
                     <div className="aib__head">
                         <div className="aib__badge">
                             <span className="aib__badge-icon">ℹ️</span>
-                            <span className="aib__badge-label">AI Insight</span>
+                            <span className="aib__badge-label">Atlas Insight</span>
                         </div>
                         <button className="aib__refresh" onClick={refresh} title="Try again">↺ Retry</button>
                     </div>
                     <div className="aib__content">
-                        <div className="aib__title">Couldn't load AI insights</div>
+                        <div className="aib__title">Couldn't load Atlas insights</div>
                         <div className="aib__body">{error}</div>
                     </div>
                 </div>
@@ -105,7 +105,7 @@ export default function AiInsightBanner({ insights, loading, error, generatedAt,
                 <div className="aib__head">
                     <div className="aib__badge">
                         <span className="aib__badge-icon">{meta.icon}</span>
-                        <span className="aib__badge-label">AI Insight · {meta.label}</span>
+                        <span className="aib__badge-label">Atlas Insight · {meta.label}</span>
                     </div>
 
                     <div className="aib__headRight">
@@ -119,7 +119,7 @@ export default function AiInsightBanner({ insights, loading, error, generatedAt,
                             onClick={refresh}
                             disabled={loading}
                             title="Refresh insights"
-                            aria-label="Refresh AI insights"
+                            aria-label="Refresh Atlas insights"
                         >
                             ↺
                         </button>

@@ -4,6 +4,7 @@ import { useRecurringItems } from "../../lib/useRecurringItems";
 import { useSalaryProfile } from "../../lib/useSalaryProfile";
 import { useSavings } from "../../lib/useSavings";
 import { monthlyEquivalent } from "../../lib/recurring";
+import { useHealthInsights } from "../../lib/useHealthInsights";
 import "./Health.css";
 
 // ─── Formatting ──────────────────────────────────────────────
@@ -383,6 +384,7 @@ export default function Health() {
     }
 
     const s = score!;
+    const aiInsights = useHealthInsights(s);
     const recs = buildRecs(s);
     const now = new Date().toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
 
@@ -507,6 +509,26 @@ export default function Health() {
                     ))}
                 </div>
             </div>
+
+            {aiInsights.length > 0 && (
+                <div>
+                    <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>
+                        🤖 Atlas Insights
+                    </p>
+
+                    <div className="health-recs-grid">
+                        {aiInsights.map((i: any, idx: number) => (
+                            <div key={idx} className="health-rec-card">
+                                <div className="health-rec-icon">🧠</div>
+                                <div className="health-rec-body">
+                                    <div className="health-rec-title">{i.title}</div>
+                                    <div className="health-rec-desc">{i.body}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

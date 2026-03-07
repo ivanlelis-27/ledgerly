@@ -173,7 +173,7 @@ export function useAiInsights({
                 );
 
                 if (cancelled) return;
-                if (fnErr) throw new Error(fnErr.message ?? "AI advisor error");
+                if (fnErr) throw new Error(fnErr.message ?? "Atlas advisor error");
 
                 const raw = (data as { insights?: unknown })?.insights;
                 const validated: AiInsight[] = Array.isArray(raw)
@@ -206,7 +206,7 @@ export function useAiInsights({
                     setError(
                         err instanceof Error
                             ? err.message
-                            : "Failed to load AI insights",
+                            : "Failed to load Atlas insights",
                     );
                     setInsights([]);
                 }
