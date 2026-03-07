@@ -342,6 +342,7 @@ export default function Health() {
 
     const score = useMemo<HealthScore | null>(() => {
         if (loading) return null;
+
         const income = profile?.monthlyIncome ?? 0;
 
         const ms = monthStart();
@@ -351,6 +352,7 @@ export default function Health() {
 
         const ps = prevMonthStart();
         const pe = prevMonthEnd();
+
         const prevMonthExp = expenses
             .filter(e => e.date >= ps && e.date <= pe)
             .reduce((s, e) => s + Number(e.amount || 0), 0);
@@ -362,8 +364,21 @@ export default function Health() {
         const since3mo = threeMonthsAgo();
         const has3MonthsData = expenses.some(e => e.date <= since3mo);
 
-        return computeScore(income, currentMonthExp, totalRecurring, prevMonthExp, goals, has3MonthsData);
+        return computeScore(
+            income,
+            currentMonthExp,
+            totalRecurring,
+            prevMonthExp,
+            goals,
+            has3MonthsData
+        );
     }, [loading, expenses, recurring, profile, goals]);
+
+    /*
+    IMPORTANT FIX:
+    Hook must run BEFORE conditional returns
+    */
+    const aiInsights = useHealthInsights(score);
 
     if (loading) return <div className="health-loading">Calculating your score…</div>;
 
@@ -384,23 +399,30 @@ export default function Health() {
     }
 
     const s = score!;
-    const aiInsights = useHealthInsights(s);
     const recs = buildRecs(s);
-    const now = new Date().toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+    const now = new Date().toLocaleDateString(undefined, {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+    });
 
     return (
         <div className="health-page">
 
-            {/* ── Header ── */}
+            {/* HEADER */}
             <div className="health-header">
                 <div>
                     <h1 className="health-title">Financial Health Score</h1>
-                    <p className="health-subtitle">A personalised 0–100 score based on 5 key areas of your finances.</p>
+                    <p className="health-subtitle">
+                        A personalised 0–100 score based on 5 key areas of your finances.
+                    </p>
                 </div>
-                <div className="health-updated">Last calculated<br />{now}</div>
+                <div className="health-updated">
+                    Last calculated<br />{now}
+                </div>
             </div>
 
-            {/* ── Hero — gauge + overview ── */}
+            {/* HERO */}
             <div className="health-hero">
                 <div className="health-gauge-wrap">
                     <Gauge score={s.total} color={s.gradeColor} />
@@ -421,14 +443,24 @@ export default function Health() {
                     <div className="health-overview-bars">
                         {s.components.map(c => (
                             <div key={c.id} className="health-bar-row">
-                                <span className="health-bar-label">{c.icon} {c.name}</span>
+                                <span className="health-bar-label">
+                                    {c.icon} {c.name}
+                                </span>
+
                                 <div className="health-bar-track">
                                     <div
                                         className="health-bar-fill"
-                                        style={{ width: `${c.pct}%`, background: c.color }}
+                                        style={{
+                                            width: `${c.pct}%`,
+                                            background: c.color
+                                        }}
                                     />
                                 </div>
-                                <span className="health-bar-pts" style={{ color: c.color }}>
+
+                                <span
+                                    className="health-bar-pts"
+                                    style={{ color: c.color }}
+                                >
                                     {c.pts}/{c.maxPts}
                                 </span>
                             </div>
@@ -437,70 +469,65 @@ export default function Health() {
                 </div>
             </div>
 
-            {/* ── Key metrics row ── */}
+            {/* KEY METRICS */}
             <div>
-                <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>Key Metrics</p>
+                <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>
+                    Key Metrics
+                </p>
+
                 <div className="health-metrics-row">
                     <div className="health-metric">
                         <div className="health-metric-label">Monthly Income</div>
                         <div className="health-metric-value">{fmt(s.monthlyIncome)}</div>
                         <div className="health-metric-sub">From salary profile</div>
                     </div>
+
                     <div className="health-metric">
                         <div className="health-metric-label">This Month's Spend</div>
-                        <div className="health-metric-value" style={{ color: s.expenseRatio > 80 ? "#ef4444" : "inherit" }}>{fmt(s.monthlyExpenses)}</div>
+                        <div
+                            className="health-metric-value"
+                            style={{ color: s.expenseRatio > 80 ? "#ef4444" : "inherit" }}
+                        >
+                            {fmt(s.monthlyExpenses)}
+                        </div>
                         <div className="health-metric-sub">{pct(s.expenseRatio)} of income</div>
                     </div>
+
                     <div className="health-metric">
                         <div className="health-metric-label">Recurring Costs</div>
                         <div className="health-metric-value">{fmt(s.monthlyRecurring)}</div>
-                        <div className="health-metric-sub">{pct(s.subscriptionBurden)} of income</div>
+                        <div className="health-metric-sub">
+                            {pct(s.subscriptionBurden)} of income
+                        </div>
                     </div>
+
                     <div className="health-metric">
                         <div className="health-metric-label">Monthly Surplus</div>
-                        <div className="health-metric-value" style={{ color: s.monthlySurplus >= 0 ? "#10b981" : "#ef4444" }}>{fmt(s.monthlySurplus)}</div>
-                        <div className="health-metric-sub">{pct(s.savingsRate)} savings rate</div>
+                        <div
+                            className="health-metric-value"
+                            style={{ color: s.monthlySurplus >= 0 ? "#10b981" : "#ef4444" }}
+                        >
+                            {fmt(s.monthlySurplus)}
+                        </div>
+                        <div className="health-metric-sub">
+                            {pct(s.savingsRate)} savings rate
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* ── Component breakdown ── */}
+            {/* RECOMMENDATIONS */}
             <div>
-                <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>Score Breakdown</p>
-                <div className="health-breakdown-grid">
-                    {s.components.map(c => (
-                        <div key={c.id} className="health-component-card" style={{ "--card-bar-color": c.color } as React.CSSProperties}>
-                            <style>{`.health-component-card:nth-of-type(${s.components.indexOf(c) + 1})::before { background: ${c.color}; }`}</style>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                <span className="health-component-icon">{c.icon}</span>
-                                <span className={`health-chip ${c.chipLevel}`}>{c.chipLabel}</span>
-                            </div>
-                            <div>
-                                <div className="health-component-name">{c.name}</div>
-                                <div className="health-component-score">
-                                    <span className="health-component-pts" style={{ color: c.color }}>{c.pts}</span>
-                                    <span className="health-component-max">/{c.maxPts} pts</span>
-                                </div>
-                            </div>
-                            <div className="health-component-bar-track">
-                                <div
-                                    className="health-component-bar-fill"
-                                    style={{ width: `${c.pct}%`, background: c.color }}
-                                />
-                            </div>
-                            <div className="health-component-detail">{c.detail}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+                <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>
+                    💡 Personalised Recommendations
+                </p>
 
-            {/* ── Recommendations ── */}
-            <div>
-                <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>💡 Personalised Recommendations</p>
                 <div className="health-recs-grid">
                     {recs.map((r, i) => (
                         <div key={i} className="health-rec-card" style={{ background: r.bg }}>
-                            <div className="health-rec-icon" style={{ background: r.iconBg }}>{r.icon}</div>
+                            <div className="health-rec-icon" style={{ background: r.iconBg }}>
+                                {r.icon}
+                            </div>
                             <div className="health-rec-body">
                                 <div className="health-rec-title">{r.title}</div>
                                 <div className="health-rec-desc">{r.desc}</div>
@@ -510,6 +537,7 @@ export default function Health() {
                 </div>
             </div>
 
+            {/* ATLAS AI INSIGHTS */}
             {aiInsights.length > 0 && (
                 <div>
                     <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>
