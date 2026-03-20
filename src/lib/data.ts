@@ -243,6 +243,7 @@ export async function fetchSalaryProfileForUser(
         cutoff4Gross: c4Gross,
         cutoff4Deductions: c4Ded,
         cutoff4Net: c4Net,
+        pockets: data.pockets ?? [],
     };
     return profile;
 }
@@ -251,6 +252,7 @@ export type UpsertSalaryPayload = {
     monthlyIncome?: number;
     frequency?: IncomeFrequency;
     source?: string;
+    pockets?: any[];
     cutoff1Gross?: number;
     cutoff1Deductions?: number;
     cutoff2Gross?: number;
@@ -313,6 +315,7 @@ export async function upsertSalaryProfile(
                 cutoff4_gross: c4Gross,
                 cutoff4_deductions: c4Ded,
                 cutoff4_net: c4Net,
+                pockets: p.pockets !== undefined ? p.pockets : undefined,
                 updated_at_ms: now,
             },
             { onConflict: "user_id" },

@@ -25,4 +25,7 @@ export type SalaryProfile = {
     cutoff4Gross: number;
     cutoff4Deductions: number;
     cutoff4Net: number;
+    
+    pockets?: any[];
 };
+
