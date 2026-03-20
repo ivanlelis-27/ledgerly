@@ -167,7 +167,7 @@
 
 @keyframes fall {
     0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(500px) rotate(720deg); opacity: 0; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 
 @keyframes bounceIn {
@@ -217,30 +217,105 @@
 }
 
 @media (max-width: 640px) {
+    .onboarding-container {
+        padding: 1rem;
+    }
+
     .onboarding-content {
-        padding: 1.5rem;
-        margin-top: 2rem;
+        padding: 1.25rem;
+        margin-top: 1rem;
     }
     
     .stage-title {
         font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stage-desc {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .progress-bar {
+        margin-bottom: 1.5rem;
     }
     
     .card-grid, .style-selection.card-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .selection-card {
+        padding: 1.25rem 1rem;
+        min-height: 140px;
+        gap: 0.75rem;
+        border-radius: 16px;
+    }
+
+    .card-icon svg {
+        width: 28px;
+        height: 28px;
     }
     
     .focus-chips {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .focus-chip {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .focus-section {
+        padding: 1.25rem;
+        margin-bottom: 2rem;
     }
     
     .btn-group {
-        flex-direction: column-reverse; /* Put main action on top for mobile thumb reach */
-        gap: 1rem;
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
     }
     
     .onboarding-btn {
         width: 100%;
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .stage-title {
+        font-size: 1.5rem;
+    }
+
+    .focus-chips {
+        grid-template-columns: 1fr;
+    }
+
+    .selection-card {
+        flex-direction: row;
+        min-height: auto;
+        padding: 1rem;
+        text-align: left;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .card-icon {
+        margin-bottom: 0;
+    }
+
+    .card-text {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .selected-dot {
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
     }
 }
 

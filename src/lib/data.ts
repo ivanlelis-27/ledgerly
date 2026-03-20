@@ -1,7 +1,7 @@
 import { PAYMENT_METHODS } from "../types/expense";
 import type { Expense, PaymentMethod } from "../types/expense";
 import type { RecurringItem } from "../types/recurring";
-import type { SalaryProfile } from "../types/salary";
+import type { SalaryProfile, IncomeFrequency } from "../types/salary";
 import type { SavingsDeposit, SavingsGoal } from "../types/savings";
 import type { UserSettings } from "../types/settings";
 import { DEFAULT_SETTINGS } from "../types/settings";
@@ -217,31 +217,48 @@ export async function fetchSalaryProfileForUser(
     const c2Gross = Number(data.cutoff2_gross || 0);
     const c2Ded = Number(data.cutoff2_deductions || 0);
     const c2Net = Number(data.cutoff2_net || (c2Gross - c2Ded));
+    const c3Gross = Number(data.cutoff3_gross || 0);
+    const c3Ded = Number(data.cutoff3_deductions || 0);
+    const c3Net = Number(data.cutoff3_net || (c3Gross - c3Ded));
+    const c4Gross = Number(data.cutoff4_gross || 0);
+    const c4Ded = Number(data.cutoff4_deductions || 0);
+    const c4Net = Number(data.cutoff4_net || (c4Gross - c4Ded));
 
-    const hasCutoffs = c1Gross > 0 || c2Gross > 0;
-    const monthlyIncome = hasCutoffs
-        ? (c1Net + c2Net)
-        : Number(data.monthly_income || 0);
+    const monthlyIncome = Number(data.monthly_income || 0);
 
     const profile: SalaryProfile = {
         monthlyIncome,
         updatedAt: data.updated_at_ms ?? Date.now(),
+        frequency: data.frequency ?? "bi-weekly",
+        source: data.source ?? "Salary",
         cutoff1Gross: c1Gross,
         cutoff1Deductions: c1Ded,
         cutoff1Net: c1Net,
         cutoff2Gross: c2Gross,
         cutoff2Deductions: c2Ded,
         cutoff2Net: c2Net,
+        cutoff3Gross: c3Gross,
+        cutoff3Deductions: c3Ded,
+        cutoff3Net: c3Net,
+        cutoff4Gross: c4Gross,
+        cutoff4Deductions: c4Ded,
+        cutoff4Net: c4Net,
     };
     return profile;
 }
 
 export type UpsertSalaryPayload = {
     monthlyIncome?: number;
+    frequency?: IncomeFrequency;
+    source?: string;
     cutoff1Gross?: number;
     cutoff1Deductions?: number;
     cutoff2Gross?: number;
     cutoff2Deductions?: number;
+    cutoff3Gross?: number;
+    cutoff3Deductions?: number;
+    cutoff4Gross?: number;
+    cutoff4Deductions?: number;
 };
 
 export async function upsertSalaryProfile(
@@ -262,8 +279,19 @@ export async function upsertSalaryProfile(
     const c2Gross = p.cutoff2Gross ?? 0;
     const c2Ded = p.cutoff2Deductions ?? 0;
     const c2Net = c2Gross - c2Ded;
-    const hasCutoffs = c1Gross > 0 || c2Gross > 0;
-    const monthlyIncome = hasCutoffs ? (c1Net + c2Net) : (p.monthlyIncome ?? 0);
+    const c3Gross = p.cutoff3Gross ?? 0;
+    const c3Ded = p.cutoff3Deductions ?? 0;
+    const c3Net = c3Gross - c3Ded;
+    const c4Gross = p.cutoff4Gross ?? 0;
+    const c4Ded = p.cutoff4Deductions ?? 0;
+    const c4Net = c4Gross - c4Ded;
+
+    // Monthly income is sum of active cutoffs based on frequency
+    let monthlyIncome = p.monthlyIncome ?? 0;
+    if (p.frequency === "monthly") monthlyIncome = c1Net;
+    else if (p.frequency === "bi-weekly") monthlyIncome = c1Net + c2Net;
+    else if (p.frequency === "weekly") monthlyIncome = c1Net + c2Net + c3Net + c4Net;
+    else if (c1Gross > 0 || c2Gross > 0) monthlyIncome = c1Net + c2Net; // Legacy
 
     const { error } = await supabase
         .from("salary_profile")
@@ -271,12 +299,20 @@ export async function upsertSalaryProfile(
             {
                 user_id: target,
                 monthly_income: Number(monthlyIncome),
+                frequency: p.frequency || "bi-weekly",
+                source: p.source || "Salary",
                 cutoff1_gross: c1Gross,
                 cutoff1_deductions: c1Ded,
                 cutoff1_net: c1Net,
                 cutoff2_gross: c2Gross,
                 cutoff2_deductions: c2Ded,
                 cutoff2_net: c2Net,
+                cutoff3_gross: c3Gross,
+                cutoff3_deductions: c3Ded,
+                cutoff3_net: c3Net,
+                cutoff4_gross: c4Gross,
+                cutoff4_deductions: c4Ded,
+                cutoff4_net: c4Net,
                 updated_at_ms: now,
             },
             { onConflict: "user_id" },
@@ -305,12 +341,20 @@ export async function exportCloudData(userId?: string): Promise<CloudBackup> {
         salary: salary ?? {
             monthlyIncome: 0,
             updatedAt: Date.now(),
+            frequency: "bi-weekly",
+            source: "Salary",
             cutoff1Gross: 0,
             cutoff1Deductions: 0,
             cutoff1Net: 0,
             cutoff2Gross: 0,
             cutoff2Deductions: 0,
             cutoff2Net: 0,
+            cutoff3Gross: 0,
+            cutoff3Deductions: 0,
+            cutoff3Net: 0,
+            cutoff4Gross: 0,
+            cutoff4Deductions: 0,
+            cutoff4Net: 0,
         },
     };
 }
