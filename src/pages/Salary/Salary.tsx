@@ -3,6 +3,7 @@ import styles from "./Salary.module.css";
 import { useExpenses } from "../../lib/useExpenses";
 import { useSalaryProfile } from "../../lib/useSalaryProfile";
 import { upsertSalaryProfile } from "../../lib/data";
+import { useUserSettings } from "../../lib/useUserSettings";
 
 /* ── Date helpers ── */
 function isoDate(d: Date): string {
@@ -188,6 +189,11 @@ function KpiCard({ label, subtitle, accent, net, isActive, onEdit }: KpiCardProp
 }
 
 export default function Salary() {
+    const { settings } = useUserSettings();
+    const isStudent = settings.userType === "student";
+    const incomeLabel = isStudent ? "Allowance" : "Salary";
+    const incomeType = isStudent ? "allowance" : "income";
+
     const { expenses } = useExpenses();
     const { profile, error, refetch } = useSalaryProfile();
 
@@ -259,24 +265,28 @@ export default function Salary() {
     return (
         <div className={styles.salaryPage}>
             <div className={styles.pageHead}>
-                <h1 className={styles.title}>Salary</h1>
-                <p className={styles.sub}>Tap ✏️ on a cutoff card to set gross pay and deductions.</p>
+                <h1 className={styles.title}>{incomeLabel}</h1>
+                <p className={styles.sub}>
+                    {isStudent 
+                        ? `Tap ✏️ on a ${incomeType} card to set your expected budget and any mandatory payments.`
+                        : `Tap ✏️ on a cutoff card to set gross pay and deductions.`}
+                </p>
                 {error && <div className={styles.saveErr}>{error}</div>}
             </div>
 
             {/* ── Cutoff KPI Cards ── */}
             <div className={styles.kpiGrid}>
                 <KpiCard
-                    label="1st Cutoff"
-                    subtitle="1st – 15th of the month"
+                    label={isStudent ? "1st Period" : "1st Cutoff"}
+                    subtitle={isStudent ? "1st – 15th of the month" : "1st – 15th of the month"}
                     accent="#6366f1"
                     net={c1Net}
                     isActive={cutoffInfo.period === 1}
                     onEdit={() => setEditingCutoff(1)}
                 />
                 <KpiCard
-                    label="2nd Cutoff"
-                    subtitle="16th – end of month"
+                    label={isStudent ? "2nd Period" : "2nd Cutoff"}
+                    subtitle={isStudent ? "16th – end of month" : "16th – end of month"}
                     accent="#8b5cf6"
                     net={c2Net}
                     isActive={cutoffInfo.period === 2}
@@ -286,7 +296,7 @@ export default function Salary() {
 
             {/* ── Total monthly income (read-only) ── */}
             <div className={styles.totalCard}>
-                <div className={styles.totalLabel}>Total Monthly Income</div>
+                <div className={styles.totalLabel}>Total Monthly {incomeLabel}</div>
                 <div className={styles.totalValue}>
                     {totalIncome > 0 ? (
                         <>
@@ -297,7 +307,7 @@ export default function Salary() {
                             <span className={styles.totalAmt}>₱{fmt(totalIncome)}</span>
                         </>
                     ) : (
-                        <span className={styles.totalEmpty}>Set both cutoffs to see total</span>
+                        <span className={styles.totalEmpty}>Set both {isStudent ? "periods" : "cutoffs"} to see total</span>
                     )}
                 </div>
             </div>
@@ -317,7 +327,7 @@ export default function Salary() {
                             <div className={styles.v}>₱{fmt(periodSpent)}</div>
                         </div>
                         <div className={styles.metric}>
-                            <div className={styles.k}>Net pay</div>
+                            <div className={styles.k}>{isStudent ? "Take-home" : "Net pay"}</div>
                             <div className={styles.v}>
                                 {activePeriodIncome > 0 ? `₱${fmt(activePeriodIncome)}` : "—"}
                             </div>
@@ -356,9 +366,9 @@ export default function Salary() {
                                 <InfoIcon />
                             </button>
                             <div className={styles.tooltip}>
-                                Average daily spending within the current cutoff period.
+                                Average daily spending within the current {isStudent ? "period" : "cutoff period"}.
                                 <br /><br />
-                                Projection estimates total spend by end of this cutoff at current pace.
+                                Projection estimates total spend by end of this {isStudent ? "period" : "cutoff"} at current pace.
                             </div>
                         </div>
                     </div>
@@ -373,7 +383,7 @@ export default function Salary() {
             {/* ── Edit Modal ── */}
             {editingCutoff !== null && (
                 <EditModal
-                    label={editingCutoff === 1 ? "1st Cutoff" : "2nd Cutoff"}
+                    label={editingCutoff === 1 ? (isStudent ? "1st Period" : "1st Cutoff") : (isStudent ? "2nd Period" : "2nd Cutoff")}
                     subtitle={editingCutoff === 1 ? "1st – 15th of the month" : "16th – end of month"}
                     accent={editingCutoff === 1 ? "#6366f1" : "#8b5cf6"}
                     state={editingCutoff === 1 ? c1 : c2}

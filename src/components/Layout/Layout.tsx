@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, type ReactNode } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
+import { useUserSettings } from "../../lib/useUserSettings";
 import "./Layout.css";
 
 type Props = { children: ReactNode };
@@ -20,6 +21,7 @@ function getInitialTheme(): Theme {
 }
 
 export default function Layout({ children }: Props) {
+    const { settings } = useUserSettings();
     const navigate = useNavigate();
     const location = useLocation();
     const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
@@ -108,7 +110,7 @@ export default function Layout({ children }: Props) {
                         <SideLink to="/simulator"  label="Simulator" icon={<SimulatorIcon />} />
                         <SideLink to="/health"     label="Health Score" icon={<HealthIcon />} />
                         <SideLink to="/advisor"    label="Atlas (AI)"   icon={<AtlasNavIcon />} atlasLink />
-                        <SideLink to="/salary"     label="Salary"   icon={<WalletIcon />} />
+                        <SideLink to="/salary"     label={settings.userType === "student" ? "Allowance" : "Salary"} icon={<WalletIcon />} />
                         <SideLink to="/profile"    label="Profile"  icon={<ProfileIcon />} />
                         <SideLink to="/settings"   label="Settings" icon={<SettingsIcon />} />
                         <button
