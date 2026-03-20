@@ -119,11 +119,18 @@ const Allowance: React.FC = () => {
                          (profile?.cutoff4Gross || 0);
 
     useEffect(() => {
-        // Just as an example, we could sum the current month's expenses
-        // In a real app we'd filter by the current period
-        const sum = expenses.reduce((acc, exp) => acc + (exp.amount || 0), 0);
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        const thisMonthExpenses = expenses.filter(exp => exp.date?.startsWith(currentMonth));
+        const sum = thisMonthExpenses.reduce((acc, exp) => acc + (exp.amount || 0), 0);
         setTotalSpent(sum);
     }, [expenses]);
+
+    const getPocketSpent = (pocketName: string) => {
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        return expenses
+            .filter(exp => exp.date?.startsWith(currentMonth) && exp.category?.toLowerCase() === pocketName.toLowerCase())
+            .reduce((acc, exp) => acc + (Number(exp.amount) || 0), 0);
+    };
 
     if (loading) return <div className={styles.container}>Loading...</div>;
 
@@ -168,35 +175,41 @@ const Allowance: React.FC = () => {
                             You haven't added any budget pockets yet. <br/> Click <strong>+ Add Pocket</strong> to start organizing your funds!
                         </div>
                     ) : (
-                        pockets.map((pocket) => (
-                            <div key={pocket.id} className={styles.pocketCard} style={{ position: 'relative' }}>
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); handleDeletePocket(pocket.id); }}
-                                    style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, fontSize: '12px' }}
-                                    title="Delete Pocket"
-                                >
-                                    ✖
-                                </button>
-                                <div className={styles.pocketHeader} style={{ marginBottom: '8px' }}>
-                                    <div className={styles.pocketIcon} style={{ width: '40px', height: '40px' }}>
-                                        {pocket.icon}
+                        pockets.map((pocket) => {
+                            const spent = getPocketSpent(pocket.name);
+                            const progress = pocket.budget > 0 ? Math.min(100, (spent / pocket.budget) * 100) : 0;
+                            const isOverBudget = spent > pocket.budget && pocket.budget > 0;
+
+                            return (
+                                <div key={pocket.id} className={styles.pocketCard} style={{ position: 'relative', borderColor: isOverBudget ? '#ef4444' : undefined }}>
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); handleDeletePocket(pocket.id); }}
+                                        style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, fontSize: '12px' }}
+                                        title="Delete Pocket"
+                                    >
+                                        ✖
+                                    </button>
+                                    <div className={styles.pocketHeader} style={{ marginBottom: '8px' }}>
+                                        <div className={styles.pocketIcon} style={{ width: '40px', height: '40px' }}>
+                                            {pocket.icon}
+                                        </div>
+                                    </div>
+                                    <div className={styles.pocketName} style={{ marginBottom: '4px' }}>{pocket.name}</div>
+                                    <div className={styles.pocketAmt} style={{ color: isOverBudget ? '#ef4444' : undefined }}>
+                                        ₱{fmtMoney(pocket.budget)} <span style={{fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'normal'}}>budgeted</span>
+                                    </div>
+                                    <div className={styles.pocketBar}>
+                                        <div 
+                                            className={styles.pocketFill} 
+                                            style={{ width: `${progress}%`, background: isOverBudget ? '#ef4444' : undefined }}
+                                        ></div>
+                                    </div>
+                                    <div style={{fontSize: '12px', color: isOverBudget ? '#ef4444' : 'var(--text-muted)', marginTop: '8px', fontWeight: isOverBudget ? 'bold' : 'normal'}}>
+                                        ₱{fmtMoney(spent)} spent {isOverBudget && '(Over Budget!)'}
                                     </div>
                                 </div>
-                                <div className={styles.pocketName} style={{ marginBottom: '4px' }}>{pocket.name}</div>
-                                <div className={styles.pocketAmt}>
-                                    ₱{fmtMoney(pocket.budget)} <span style={{fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'normal'}}>budgeted</span>
-                                </div>
-                                <div className={styles.pocketBar}>
-                                    <div 
-                                        className={styles.pocketFill} 
-                                        style={{ width: '0%' }}
-                                    ></div>
-                                </div>
-                                <div style={{fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px'}}>
-                                    ₱0.00 spent
-                                </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                 </div>
 
