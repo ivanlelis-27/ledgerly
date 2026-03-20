@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import styles from './Allowance.module.css';
 import { useSalaryProfile } from '../../lib/useSalaryProfile';
 import { useExpenses } from '../../lib/useExpenses';
-import { upsertSalaryProfile } from '../../lib/data';
+import { upsertSalaryProfile, updatePockets } from '../../lib/data';
 import { supabase } from '../../lib/supabase';
+
 import type { IncomeFrequency } from '../../types/salary';
 
 function fmtMoney(n: number) {
@@ -72,20 +73,6 @@ const Allowance: React.FC = () => {
 
     const pockets: Pocket[] = profile?.pockets || [];
 
-    const getPreservedPayload = (newPockets: Pocket[]) => ({
-        frequency: profile?.frequency,
-        source: profile?.source,
-        cutoff1Gross: profile?.cutoff1Gross,
-        cutoff1Deductions: profile?.cutoff1Deductions,
-        cutoff2Gross: profile?.cutoff2Gross,
-        cutoff2Deductions: profile?.cutoff2Deductions,
-        cutoff3Gross: profile?.cutoff3Gross,
-        cutoff3Deductions: profile?.cutoff3Deductions,
-        cutoff4Gross: profile?.cutoff4Gross,
-        cutoff4Deductions: profile?.cutoff4Deductions,
-        pockets: newPockets,
-    });
-
     const handleAddPocket = async () => {
         setSaving(true);
         try {
@@ -100,7 +87,7 @@ const Allowance: React.FC = () => {
             };
 
             const updatedPockets = [...pockets, newPocket];
-            await upsertSalaryProfile(getPreservedPayload(updatedPockets), user.id);
+            await updatePockets(updatedPockets, user.id);
             await refetch({ soft: true });
             setIsPockModalOpen(false);
             setPockName('');
@@ -117,7 +104,7 @@ const Allowance: React.FC = () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
             const updatedPockets = pockets.filter(p => p.id !== id);
-            await upsertSalaryProfile(getPreservedPayload(updatedPockets), user.id);
+            await updatePockets(updatedPockets, user.id);
             await refetch({ soft: true });
         } catch(err) {
             console.error(err);

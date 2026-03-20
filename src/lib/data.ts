@@ -324,6 +324,15 @@ export async function upsertSalaryProfile(
     if (error) throw error;
 }
 
+export async function updatePockets(pockets: any[], userId?: string) {
+    const target = await requireUserId(userId);
+    const { error } = await supabase
+        .from("salary_profile")
+        .update({ pockets, updated_at_ms: Date.now() })
+        .eq("user_id", target);
+    if (error) throw error;
+}
+
 export type CloudBackup = {
     expenses?: Expense[];
     recurring?: RecurringItem[];
