@@ -28,12 +28,15 @@ const Allowance: React.FC = () => {
     const [editSource, setEditSource] = useState('Parents');
     const [editFreq, setEditFreq] = useState<IncomeFrequency>('weekly');
     const [editAmount, setEditAmount] = useState('');
+    const [editDeductions, setEditDeductions] = useState('');
     const [saving, setSaving] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
     const handleEditOpen = () => {
         setEditSource(profile?.source || 'Parents');
         setEditFreq(profile?.frequency || 'weekly');
         setEditAmount(String(profile?.cutoff1Gross || ''));
+        setEditDeductions(String(profile?.cutoff1Deductions || ''));
         setIsEditing(true);
     };
 
@@ -44,17 +47,18 @@ const Allowance: React.FC = () => {
             if (!user) throw new Error("Not logged in");
 
             const amt = parseFloat(editAmount) || 0;
+            const ded = parseFloat(editDeductions) || 0;
             const payload: any = {
                 source: editSource,
                 frequency: editFreq,
                 cutoff1Gross: amt,
-                cutoff1Deductions: profile?.cutoff1Deductions || 0,
+                cutoff1Deductions: ded,
                 cutoff2Gross: editFreq !== 'monthly' ? amt : 0,
-                cutoff2Deductions: editFreq !== 'monthly' ? (profile?.cutoff2Deductions || 0) : 0,
+                cutoff2Deductions: editFreq !== 'monthly' ? ded : 0,
                 cutoff3Gross: editFreq === 'weekly' ? amt : 0,
-                cutoff3Deductions: editFreq === 'weekly' ? (profile?.cutoff3Deductions || 0) : 0,
+                cutoff3Deductions: editFreq === 'weekly' ? ded : 0,
                 cutoff4Gross: editFreq === 'weekly' ? amt : 0,
-                cutoff4Deductions: editFreq === 'weekly' ? (profile?.cutoff4Deductions || 0) : 0,
+                cutoff4Deductions: editFreq === 'weekly' ? ded : 0,
             };
 
             await upsertSalaryProfile(payload, user.id);
@@ -112,12 +116,21 @@ const Allowance: React.FC = () => {
         }
     };
 
-    // Calc total monthly allowance
+    const c1Gross = profile?.cutoff1Gross || 0;
+    const c1Ded = profile?.cutoff1Deductions || 0;
+    const c1Net = c1Gross - c1Ded;
 
-    const totalMonthly = (profile?.cutoff1Gross || 0) + 
-                         (profile?.cutoff2Gross || 0) + 
-                         (profile?.cutoff3Gross || 0) + 
-                         (profile?.cutoff4Gross || 0);
+    const totalGross = (profile?.cutoff1Gross || 0) + 
+                       (profile?.cutoff2Gross || 0) + 
+                       (profile?.cutoff3Gross || 0) + 
+                       (profile?.cutoff4Gross || 0);
+
+    const totalDeductions = (profile?.cutoff1Deductions || 0) + 
+                            (profile?.cutoff2Deductions || 0) + 
+                            (profile?.cutoff3Deductions || 0) + 
+                            (profile?.cutoff4Deductions || 0);
+
+    const totalMonthly = totalGross - totalDeductions;
 
     useEffect(() => {
         const currentMonth = new Date().toISOString().slice(0, 7);
@@ -218,7 +231,7 @@ const Allowance: React.FC = () => {
 
             <div className={styles.actions}>
                 <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleEditOpen}>Update Allowance</button>
-                <button className={`${styles.btn} ${styles.btnSecondary}`}>Allocation History</button>
+                <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={() => setIsHistoryOpen(true)}>Allocation Breakdown</button>
             </div>
 
             {isEditing && (
@@ -263,8 +276,8 @@ const Allowance: React.FC = () => {
                             </select>
                         </div>
 
-                        <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Amount per period (₱)</label>
+                        <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Gross Amount per period (₱)</label>
                             <input 
                                 type="number" 
                                 value={editAmount} 
@@ -273,10 +286,70 @@ const Allowance: React.FC = () => {
                             />
                         </div>
 
+                        <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Fixed Allocations per period (e.g. Tuition/Savings) ₱</label>
+                            <input 
+                                type="number" 
+                                value={editDeductions} 
+                                onChange={e => setEditDeductions(e.target.value)}
+                                placeholder="0.00"
+                                style={{ padding: '12px 16px', borderRadius: '12px', border: '1.5px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)', fontSize: '15px' }}
+                            />
+                        </div>
+
                         <div className="modalActions">
                             <button className="ghostBtn" onClick={() => setIsEditing(false)} disabled={saving}>Cancel</button>
                             <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleSave} disabled={saving}>
                                 {saving ? "Saving..." : "Save Changes"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isHistoryOpen && (
+                <div className="modalOverlay" role="dialog" aria-modal="true">
+                    <div className="modalCard" style={{ maxWidth: '450px' }}>
+                        <div className="modalTop">
+                            <h3 className="modalTitle">Allocation Breakdown</h3>
+                            <button className="iconBtn" onClick={() => setIsHistoryOpen(false)}>✕</button>
+                        </div>
+                        
+                        <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px', lineHeight: '1.5' }}>
+                            This breakdown shows exactly how your total monthly pool is calculated from your {profile?.frequency} allowance.
+                        </p>
+
+                        <div style={{ background: 'var(--surface-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', marginBottom: '24px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '14px' }}>
+                                <span style={{ color: 'var(--text-muted)' }}>Gross {profile?.frequency} Allowance</span>
+                                <span style={{ fontWeight: '600' }}>₱{fmtMoney(c1Gross)}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '14px', color: '#ef4444' }}>
+                                <span>Fixed Allocations (e.g. Savings)</span>
+                                <span>-₱{fmtMoney(c1Ded)}</span>
+                            </div>
+                            
+                            <div style={{ height: '1px', background: 'var(--border-color)', marginBottom: '16px' }}></div>
+                            
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '15px', fontWeight: 'bold' }}>
+                                <span>Net Pool Per Period</span>
+                                <span>₱{fmtMoney(c1Net)}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-muted)', marginTop: '16px' }}>
+                                <span>Periods in a Month</span>
+                                <span>x {profile?.frequency === 'weekly' ? 4 : profile?.frequency === 'bi-weekly' ? 2 : 1}</span>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--accent-teal)', color: 'var(--bg-color)', padding: '16px 20px', borderRadius: '12px', fontWeight: 'bold' }}>
+                            <span>Total Monthly Pool</span>
+                            <span style={{ fontSize: '18px' }}>₱{fmtMoney(totalMonthly)}</span>
+                        </div>
+                        
+                        <div className="modalActions" style={{ marginTop: '24px' }}>
+                            <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setIsHistoryOpen(false)} style={{ width: '100%' }}>
+                                Got it
                             </button>
                         </div>
                     </div>
