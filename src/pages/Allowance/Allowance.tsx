@@ -56,7 +56,7 @@ const Allowance: React.FC = () => {
             };
 
             await upsertSalaryProfile(payload, user.id);
-            await refetch();
+            await refetch({ soft: true });
             setIsEditing(false);
         } catch(err) {
             console.error(err);
@@ -101,7 +101,7 @@ const Allowance: React.FC = () => {
 
             const updatedPockets = [...pockets, newPocket];
             await upsertSalaryProfile(getPreservedPayload(updatedPockets), user.id);
-            await refetch();
+            await refetch({ soft: true });
             setIsPockModalOpen(false);
             setPockName('');
             setPockBudget('');
@@ -118,7 +118,7 @@ const Allowance: React.FC = () => {
             if (!user) return;
             const updatedPockets = pockets.filter(p => p.id !== id);
             await upsertSalaryProfile(getPreservedPayload(updatedPockets), user.id);
-            await refetch();
+            await refetch({ soft: true });
         } catch(err) {
             console.error(err);
         }
@@ -231,7 +231,7 @@ const Allowance: React.FC = () => {
                                 type="text" 
                                 value={editSource} 
                                 onChange={e => setEditSource(e.target.value)}
-                                style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)' }}
+                                style={{ padding: '12px 16px', borderRadius: '12px', border: '1.5px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)', fontSize: '15px' }}
                             />
                         </div>
 
@@ -240,7 +240,21 @@ const Allowance: React.FC = () => {
                             <select 
                                 value={editFreq} 
                                 onChange={e => setEditFreq(e.target.value as IncomeFrequency)}
-                                style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)' }}
+                                style={{ 
+                                    padding: '12px 36px 12px 16px', 
+                                    borderRadius: '12px', 
+                                    border: '1.5px solid var(--border-color)', 
+                                    background: 'var(--surface-bg)', 
+                                    color: 'var(--text-primary)',
+                                    fontSize: '15px',
+                                    WebkitAppearance: 'none',
+                                    appearance: 'none',
+                                    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundPosition: 'right 14px center',
+                                    backgroundSize: '16px',
+                                    cursor: 'pointer'
+                                }}
                             >
                                 <option value="weekly">Weekly</option>
                                 <option value="bi-weekly">Bi-weekly</option>
@@ -254,7 +268,7 @@ const Allowance: React.FC = () => {
                                 type="number" 
                                 value={editAmount} 
                                 onChange={e => setEditAmount(e.target.value)}
-                                style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)' }}
+                                style={{ padding: '12px 16px', borderRadius: '12px', border: '1.5px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)', fontSize: '15px' }}
                             />
                         </div>
 
@@ -280,7 +294,7 @@ const Allowance: React.FC = () => {
                                 value={pockName} 
                                 onChange={e => setPockName(e.target.value)}
                                 placeholder="E.g. Groceries"
-                                style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)' }}
+                                style={{ padding: '12px 16px', borderRadius: '12px', border: '1.5px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)', fontSize: '15px' }}
                             />
                         </div>
 
@@ -289,7 +303,21 @@ const Allowance: React.FC = () => {
                             <select 
                                 value={pockIcon} 
                                 onChange={e => setPockIcon(e.target.value)}
-                                style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)' }}
+                                style={{ 
+                                    padding: '12px 36px 12px 16px', 
+                                    borderRadius: '12px', 
+                                    border: '1.5px solid var(--border-color)', 
+                                    background: 'var(--surface-bg)', 
+                                    color: 'var(--text-primary)',
+                                    fontSize: '15px',
+                                    WebkitAppearance: 'none',
+                                    appearance: 'none',
+                                    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundPosition: 'right 14px center',
+                                    backgroundSize: '16px',
+                                    cursor: 'pointer'
+                                }}
                             >
                                 <option value="🍔">🍔 Food & Dining</option>
                                 <option value="🚌">🚌 Commute</option>
@@ -308,7 +336,7 @@ const Allowance: React.FC = () => {
                                 value={pockBudget} 
                                 onChange={e => setPockBudget(e.target.value)}
                                 placeholder="0.00"
-                                style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)' }}
+                                style={{ padding: '12px 16px', borderRadius: '12px', border: '1.5px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)', fontSize: '15px' }}
                             />
                         </div>
 

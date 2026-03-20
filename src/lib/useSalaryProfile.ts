@@ -8,7 +8,7 @@ type SalaryResult = {
     profile: SalaryProfile | null;
     loading: boolean;
     error: string | null;
-    refetch: () => Promise<void>;
+    refetch: (opts?: { soft?: boolean }) => Promise<void>;
 };
 
 export function useSalaryProfile(): SalaryResult {
@@ -84,8 +84,8 @@ export function useSalaryProfile(): SalaryResult {
         };
     }, [userId, load]);
 
-    const refetch = useCallback(async () => {
-        await load();
+    const refetch = useCallback(async (opts?: { soft?: boolean }) => {
+        await load(opts);
     }, [load]);
 
     return { profile, loading, error, refetch };
