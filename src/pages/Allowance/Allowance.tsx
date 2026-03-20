@@ -4,6 +4,7 @@ import { useSalaryProfile } from '../../lib/useSalaryProfile';
 import { useExpenses } from '../../lib/useExpenses';
 import { upsertSalaryProfile, updatePockets } from '../../lib/data';
 import { supabase } from '../../lib/supabase';
+import { QUICK_CATEGORIES } from '../../components/ExpenseForm/ExpenseForm';
 
 import type { IncomeFrequency } from '../../types/salary';
 
@@ -67,8 +68,7 @@ const Allowance: React.FC = () => {
     };
 
     const [isPockModalOpen, setIsPockModalOpen] = useState(false);
-    const [pockName, setPockName] = useState('');
-    const [pockIcon, setPockIcon] = useState('🍔');
+    const [pockCategory, setPockCategory] = useState(QUICK_CATEGORIES[0].value);
     const [pockBudget, setPockBudget] = useState('');
 
     const pockets: Pocket[] = profile?.pockets || [];
@@ -79,10 +79,11 @@ const Allowance: React.FC = () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("Not logged in");
 
+            const selectedCat = QUICK_CATEGORIES.find(c => c.value === pockCategory) || QUICK_CATEGORIES[0];
             const newPocket: Pocket = {
                 id: Date.now().toString(),
-                name: pockName,
-                icon: pockIcon,
+                name: selectedCat.label,
+                icon: selectedCat.emoji,
                 budget: parseFloat(pockBudget) || 0,
             };
 
@@ -90,7 +91,7 @@ const Allowance: React.FC = () => {
             await updatePockets(updatedPockets, user.id);
             await refetch({ soft: true });
             setIsPockModalOpen(false);
-            setPockName('');
+            setPockCategory(QUICK_CATEGORIES[0].value);
             setPockBudget('');
         } catch(err) {
             console.error(err);
@@ -288,21 +289,10 @@ const Allowance: React.FC = () => {
                         <h3 className="modalTitle">Add New Pocket</h3>
                         
                         <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Pocket Name</label>
-                            <input 
-                                type="text" 
-                                value={pockName} 
-                                onChange={e => setPockName(e.target.value)}
-                                placeholder="E.g. Groceries"
-                                style={{ padding: '12px 16px', borderRadius: '12px', border: '1.5px solid var(--border-color)', background: 'var(--surface-bg)', color: 'var(--text-primary)', fontSize: '15px' }}
-                            />
-                        </div>
-
-                        <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Icon (Emoji)</label>
+                            <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Category</label>
                             <select 
-                                value={pockIcon} 
-                                onChange={e => setPockIcon(e.target.value)}
+                                value={pockCategory} 
+                                onChange={e => setPockCategory(e.target.value)}
                                 style={{ 
                                     padding: '12px 36px 12px 16px', 
                                     borderRadius: '12px', 
@@ -319,15 +309,13 @@ const Allowance: React.FC = () => {
                                     cursor: 'pointer'
                                 }}
                             >
-                                <option value="🍔">🍔 Food & Dining</option>
-                                <option value="🚌">🚌 Commute</option>
-                                <option value="🎓">🎓 Education</option>
-                                <option value="☕">☕ Leisure</option>
-                                <option value="🏦">🏦 Savings</option>
-                                <option value="🛒">🛒 Shopping</option>
-                                <option value="📱">📱 Tech/Bills</option>
+                                {QUICK_CATEGORIES.map(c => (
+                                    <option key={c.value} value={c.value}>{c.emoji} {c.label}</option>
+                                ))}
                             </select>
                         </div>
+
+
 
                         <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Budget Target (₱)</label>
@@ -342,7 +330,7 @@ const Allowance: React.FC = () => {
 
                         <div className="modalActions">
                             <button className="ghostBtn" onClick={() => setIsPockModalOpen(false)} disabled={saving}>Cancel</button>
-                            <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleAddPocket} disabled={saving || !pockName}>
+                            <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleAddPocket} disabled={saving}>
                                 {saving ? "Saving..." : "Create Pocket"}
                             </button>
                         </div>

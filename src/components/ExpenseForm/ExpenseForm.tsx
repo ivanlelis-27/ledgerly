@@ -14,7 +14,7 @@ export type ExpenseDraft = {
     tags: string[];
 };
 
-const QUICK_CATEGORIES = [
+export const QUICK_CATEGORIES = [
     { label: "Food", emoji: "🍔", value: "Food" },
     { label: "Groceries", emoji: "🛒", value: "Groceries" },
     { label: "Transpo", emoji: "🚕", value: "Transpo" },
