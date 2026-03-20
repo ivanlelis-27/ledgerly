@@ -13,7 +13,8 @@
 .headerTop {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    gap: 16px;
     width: 100%;
 }
 
@@ -31,7 +32,6 @@
 .title {
     font-size: 22px;
     font-weight: 700;
-
 }
 
 .subtitle {
@@ -69,9 +69,9 @@
 }
 
 .seg button.on {
-    background: rgba(99, 102, 241, 0.1);
-    color: #6366f1;
-    font-weight: 800;
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
 }
 
 .ghost {
@@ -89,7 +89,6 @@
 .ghost:hover {
     opacity: 0.75;
 }
-
 
 .rangeLabel {
     font-size: 11.5px;
@@ -128,7 +127,6 @@
     color: var(--text-muted);
     flex-shrink: 0;
 }
-
 
 .grid {
     display: grid;
@@ -195,7 +193,6 @@
 .card {
     width: 100%;
     min-width: 0;
-    /* IMPORTANT for grid children */
 }
 
 .cardBody {
@@ -238,7 +235,6 @@
     min-width: 0;
 }
 
-/* Keep Top spends panel height even when empty */
 .topSpendsCard {
     min-height: 250px;
     display: flex;
@@ -299,11 +295,13 @@
 }
 
 .topName {
-    font-weight: 700;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .topAmt {
-    font-weight: 800;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
 .barTrack {
@@ -499,37 +497,84 @@
 }
 
 /* ── Mobile responsive overrides ── */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
+    .dash {
+        padding: 0 4px 80px;
+    }
+
+    .headerTop {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .headerActions {
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .seg {
+        width: 100%;
+        margin-top: 4px;
+    }
+
     .summary {
         grid-template-columns: 1fr 1fr;
     }
+
+    .summaryCard:first-child {
+        grid-column: 1 / -1;
+        padding: 24px 20px;
+        background: linear-gradient(135deg, var(--surface-card) 0%, var(--surface-ghost) 100%);
+        border-color: var(--accent);
+    }
+
+    .summaryCard:first-child .kLabel {
+        font-size: 14px;
+        text-transform: uppercase;
+    }
+
+    .summaryCard:first-child .kValue {
+        font-size: 32px;
+    }
+
     .grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
+    
+    .card {
+        padding: 20px;
+        border-radius: 24px;
+    }
+
     .savingsGrid {
         grid-template-columns: 1fr;
     }
-    .recentCard {
-        grid-column: unset;
-        grid-row: unset;
-    }
-    .topSpendsCard,
-    .upcomingCard {
-        grid-column: unset;
-        grid-row: unset;
-    }
-    .kValue {
-        font-size: 18px;
-    }
+    
     .customDates {
-        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
     }
+    
     .dateInput {
-        flex: 1;
-        min-width: 120px;
+        width: 100%;
     }
-    .seg button {
-        font-size: 13px;
-        padding: 9px 4px;
+
+    .on {
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+}
+
+@media (max-width: 480px) {
+    .summary {
+        grid-template-columns: 1fr;
+    }
+    .title {
+        font-size: 24px;
     }
 }
