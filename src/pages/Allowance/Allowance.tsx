@@ -17,13 +17,6 @@ type Pocket = {
     budget: number;
 };
 
-const DEFAULT_POCKETS: Pocket[] = [
-    { id: 'food', name: 'Food', icon: '🍔', budget: 1500 },
-    { id: 'commute', name: 'Commute', icon: '🚌', budget: 800 },
-    { id: 'school', name: 'School', icon: '🎓', budget: 500 },
-    { id: 'fun', name: 'Fun', icon: '☕', budget: 400 },
-];
-
 const Allowance: React.FC = () => {
     const { profile, loading, refetch } = useSalaryProfile();
     const { expenses } = useExpenses();
@@ -77,7 +70,7 @@ const Allowance: React.FC = () => {
     const [pockIcon, setPockIcon] = useState('🍔');
     const [pockBudget, setPockBudget] = useState('');
 
-    const pockets: Pocket[] = profile?.pockets?.length ? profile.pockets : DEFAULT_POCKETS;
+    const pockets: Pocket[] = profile?.pockets || [];
 
     const handleAddPocket = async () => {
         setSaving(true);
@@ -169,35 +162,41 @@ const Allowance: React.FC = () => {
                 </div>
 
                 <div className={styles.pocketsGrid}>
-                    {pockets.map((pocket) => (
-                        <div key={pocket.id} className={styles.pocketCard} style={{ position: 'relative' }}>
-                            <button 
-                                onClick={(e) => { e.stopPropagation(); handleDeletePocket(pocket.id); }}
-                                style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, fontSize: '12px' }}
-                                title="Delete Pocket"
-                            >
-                                ✖
-                            </button>
-                            <div className={styles.pocketHeader} style={{ marginBottom: '8px' }}>
-                                <div className={styles.pocketIcon} style={{ width: '40px', height: '40px' }}>
-                                    {pocket.icon}
+                    {pockets.length === 0 ? (
+                        <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', border: '2px dashed var(--border-color)', borderRadius: '16px', gridColumn: '1 / -1', fontSize: '15px' }}>
+                            You haven't added any budget pockets yet. <br/> Click <strong>+ Add Pocket</strong> to start organizing your funds!
+                        </div>
+                    ) : (
+                        pockets.map((pocket) => (
+                            <div key={pocket.id} className={styles.pocketCard} style={{ position: 'relative' }}>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handleDeletePocket(pocket.id); }}
+                                    style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, fontSize: '12px' }}
+                                    title="Delete Pocket"
+                                >
+                                    ✖
+                                </button>
+                                <div className={styles.pocketHeader} style={{ marginBottom: '8px' }}>
+                                    <div className={styles.pocketIcon} style={{ width: '40px', height: '40px' }}>
+                                        {pocket.icon}
+                                    </div>
+                                </div>
+                                <div className={styles.pocketName} style={{ marginBottom: '4px' }}>{pocket.name}</div>
+                                <div className={styles.pocketAmt}>
+                                    ₱{fmtMoney(pocket.budget)} <span style={{fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'normal'}}>budgeted</span>
+                                </div>
+                                <div className={styles.pocketBar}>
+                                    <div 
+                                        className={styles.pocketFill} 
+                                        style={{ width: '0%' }}
+                                    ></div>
+                                </div>
+                                <div style={{fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px'}}>
+                                    ₱0.00 spent
                                 </div>
                             </div>
-                            <div className={styles.pocketName} style={{ marginBottom: '4px' }}>{pocket.name}</div>
-                            <div className={styles.pocketAmt}>
-                                ₱{fmtMoney(pocket.budget)} <span style={{fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'normal'}}>budgeted</span>
-                            </div>
-                            <div className={styles.pocketBar}>
-                                <div 
-                                    className={styles.pocketFill} 
-                                    style={{ width: '0%' }}
-                                ></div>
-                            </div>
-                            <div style={{fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px'}}>
-                                ₱0.00 spent
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
 
             </section>
