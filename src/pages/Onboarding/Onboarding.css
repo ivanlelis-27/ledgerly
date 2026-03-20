@@ -245,6 +245,10 @@
         gap: 0.75rem;
     }
 
+    .style-selection.card-grid .selection-card:nth-child(3) {
+        grid-column: span 2;
+    }
+
     .selection-card {
         padding: 1rem 0.75rem;
         min-height: 120px;
