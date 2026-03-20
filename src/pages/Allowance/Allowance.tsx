@@ -65,7 +65,7 @@ const Allowance: React.FC = () => {
             <section>
                 <div className={styles.pocketHeader}>
                     <h2 className={styles.title} style={{ fontSize: '20px' }}>Your Budget Pockets</h2>
-                    <button className={styles.btnSecondary} style={{ padding: '8px 16px', fontSize: '12px' }}>
+                    <button className={`${styles.btn} ${styles.btnSecondary}`} style={{ padding: '8px 16px', fontSize: '12px' }}>
                         + Add Pocket
                     </button>
                 </div>
@@ -80,13 +80,16 @@ const Allowance: React.FC = () => {
                                 </div>
                             </div>
                             <div className={styles.pocketAmt}>
-                                ₱{fmtMoney(totalMonthly * (typeof pocket.allocation === 'number' && pocket.allocation < 1 ? pocket.allocation : 0))}
+                                ₱{fmtMoney(totalMonthly * (typeof pocket.allocation === 'number' && pocket.allocation < 1 ? pocket.allocation : 0))} <span style={{fontSize: '12px', color: 'var(--text-muted)', fontWeight: 'normal'}}>budgeted</span>
                             </div>
                             <div className={styles.pocketBar}>
                                 <div 
                                     className={styles.pocketFill} 
-                                    style={{ width: `${(pocket.allocation < 1 ? pocket.allocation : 0.1) * 100}%` }}
+                                    style={{ width: '0%' }}
                                 ></div>
+                            </div>
+                            <div style={{fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px'}}>
+                                ₱0.00 spent
                             </div>
                         </div>
                     ))}
@@ -94,8 +97,8 @@ const Allowance: React.FC = () => {
             </section>
 
             <div className={styles.actions}>
-                <button className={styles.btnPrimary} onClick={() => {}}>Update Allowance</button>
-                <button className={styles.btnSecondary}>Allocation History</button>
+                <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => {}}>Update Allowance</button>
+                <button className={`${styles.btn} ${styles.btnSecondary}`}>Allocation History</button>
             </div>
         </div>
     );
