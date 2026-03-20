@@ -10,6 +10,14 @@
     width: 100%;
 }
 
+.mobileOnly {
+    display: none;
+}
+
+.desktopOnly {
+    display: block;
+}
+
 .headerTop {
     display: flex;
     align-items: center;
@@ -245,6 +253,13 @@
 .topSpendsCard .topList,
 .topSpendsCard .empty {
     flex: 1;
+}
+
+.summaryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
 }
 
 .kLabel {
@@ -567,6 +582,14 @@
 
     .on {
         box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+    .mobileOnly {
+        display: block;
+    }
+
+    .desktopOnly {
+        display: none;
     }
 }
 

@@ -304,7 +304,7 @@ export default function Dashboard() {
 
                     {/* Date context + actions — all right-aligned */}
                     <div className="headerActions">
-                        {range === "custom" ? (
+                        {range === "custom" && (
                             <>
                                 <input
                                     type="date"
@@ -322,11 +322,9 @@ export default function Dashboard() {
                                     onChange={e => setCustomEnd(e.target.value)}
                                 />
                             </>
-                        ) : (
-                            <span className="rangeLabel">{currentLabel}</span>
                         )}
-                        <button className="ghost" onClick={exportCSV}>↓ CSV</button>
-                        <button className="ghost" onClick={() => { void refetchExpenses(); void refetchRecurring(); }}>↺ Refresh</button>
+                        <button className="ghost desktopOnly" onClick={exportCSV}>↓ CSV</button>
+                        <button className="ghost desktopOnly" onClick={() => { void refetchExpenses(); void refetchRecurring(); }}>↺ Refresh</button>
                     </div>
                 </div>
             </div>
@@ -334,7 +332,10 @@ export default function Dashboard() {
             {/* ── Summary cards ── */}
             <div className="summary">
                 <div className="summaryCard">
-                    <div className="kLabel">Total spent</div>
+                    <div className="summaryHeader">
+                        <div className="kLabel">Total spent</div>
+                        <div className="rangeLabel mobileOnly">{currentLabel}</div>
+                    </div>
                     <div className="kValue">₱{fmtMoney(total)}</div>
                     <div className="kSub">
                         {deltaPct === null ? (
