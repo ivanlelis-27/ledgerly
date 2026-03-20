@@ -196,11 +196,11 @@ export default function Settings() {
                         className="st-select"
                         value={settings.weekStart}
                         disabled={loading}
-                        onChange={e => update({ weekStart: e.target.value })}
+                        onChange={e => update({ weekStart: Number(e.target.value) })}
                     >
-                        <option value="monday">Monday</option>
-                        <option value="sunday">Sunday</option>
-                        <option value="saturday">Saturday</option>
+                        <option value="1">Monday</option>
+                        <option value="0">Sunday</option>
+                        <option value="6">Saturday</option>
                     </select>
                 </div>
 
@@ -253,7 +253,76 @@ export default function Settings() {
             </section>
 
             {/* ══════════════════════════════════════
-                SECTION 3 — Data & Backup
+                SECTION 3 — Personalization
+               ══════════════════════════════════════ */}
+            <section className="st-section">
+                <div className="st-section-header">
+                    <div className="st-section-icon" style={{ background: "rgba(99,102,241,0.12)", color: "#6366f1" }}>✨</div>
+                    <h2 className="st-section-title">Personalization</h2>
+                </div>
+
+                {/* User Type */}
+                <div className="st-row">
+                    <div className="st-row-left">
+                        <span className="st-row-label">I am a...</span>
+                        <span className="st-row-desc">Helps us tailor your financial insights.</span>
+                    </div>
+                    <select
+                        className="st-select"
+                        value={settings.userType}
+                        disabled={loading}
+                        onChange={e => update({ userType: e.target.value as any })}
+                    >
+                        <option value="">Select profile...</option>
+                        <option value="employee">Employee</option>
+                        <option value="self-employed">Self-employed</option>
+                        <option value="student">Student</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                {/* Financial Goal */}
+                <div className="st-row">
+                    <div className="st-row-left">
+                        <span className="st-row-label">Financial Goal</span>
+                        <span className="st-row-desc">Affects which widgets are prioritized.</span>
+                    </div>
+                    <select
+                        className="st-select"
+                        value={settings.financialGoal}
+                        disabled={loading}
+                        onChange={e => update({ financialGoal: e.target.value as any })}
+                    >
+                        <option value="">Select goal...</option>
+                        <option value="track">Track Spending</option>
+                        <option value="save">Save Money</option>
+                        <option value="debt">Manage Debt</option>
+                        <option value="budget">Budgeting</option>
+                    </select>
+                </div>
+
+                {/* Budget Style */}
+                <div className="st-row">
+                    <div className="st-row-left">
+                        <span className="st-row-label">Budgeting Style</span>
+                        <span className="st-row-desc">Controls dashboard layout and density.</span>
+                    </div>
+                    <select
+                        className="st-select"
+                        value={settings.budgetStyle}
+                        disabled={loading}
+                        onChange={e => update({ budgetStyle: e.target.value as any })}
+                    >
+                        <option value="">Select style...</option>
+                        <option value="minimalist">Minimalist</option>
+                        <option value="optimizer">The Optimizer</option>
+                        <option value="goal-seeker">The Goal-Seeker</option>
+                    </select>
+                </div>
+            </section>
+
+            {/* ══════════════════════════════════════
+                SECTION 4 — Data & Backup
                ══════════════════════════════════════ */}
             <section className="st-section">
                 <div className="st-section-header">
@@ -303,7 +372,7 @@ export default function Settings() {
             </section>
 
             {/* ══════════════════════════════════════
-                SECTION 4 — About
+                SECTION 5 — About
                ══════════════════════════════════════ */}
             <section className="st-section">
                 <div className="st-section-header">
@@ -337,7 +406,7 @@ export default function Settings() {
             </section>
 
             {/* ══════════════════════════════════════
-                SECTION 5 — Danger Zone
+                SECTION 6 — Danger Zone
                ══════════════════════════════════════ */}
             <section className="st-section st-danger-section">
                 <div className="st-section-header">
