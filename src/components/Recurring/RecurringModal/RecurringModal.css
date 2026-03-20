@@ -106,10 +106,247 @@
     gap: 10px;
 }
 
-.rmH {
-    font-weight: 900;
+/* ── AI category suggestion chip ── */
+.rmAiHint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(99, 102, 241, 0.07);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    font-size: 12.5px;
+    color: var(--text-primary);
+    flex-wrap: wrap;
+}
+
+.rmAiHintLoading {
+    opacity: 0.7;
+    font-style: italic;
+}
+
+.rmAiStar {
+    color: #6366f1;
     font-size: 13px;
-    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+.rmAiHintText {
+    flex: 1;
+    min-width: 0;
+}
+
+.rmAiApply {
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    background: rgba(99, 102, 241, 0.12);
+    color: #6366f1;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+.rmAiApply:hover { background: rgba(99, 102, 241, 0.22); }
+
+.rmAiDismiss {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    transition: background 0.12s;
+}
+.rmAiDismiss:hover { background: var(--surface-ghost); }
+
+/* Spinner for loading state */
+.rmAiSpinner {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(99, 102, 241, 0.25);
+    border-top-color: #6366f1;
+    animation: rmSpin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+@keyframes rmSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Section header row (icon + title + hint) */
+.rmSectionHead {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.rmSectionIcon {
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.rmH {
+    font-weight: 800;
+    font-size: 13.5px;
+}
+
+.rmHint {
+    font-size: 11.5px;
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+/* Optional label suffix */
+.rmOptional {
+    font-weight: 400;
+    opacity: 0.55;
+    font-size: 11px;
+}
+
+/* Auto-calc badge on next payment date label */
+.rmAutoCalc {
+    font-weight: 500;
+    font-size: 11px;
+    opacity: 0.55;
+    font-style: italic;
+}
+
+/* ── Kind pill selector ── */
+.rmKindGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+@media (max-width: 600px) {
+    .rmKindGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.rmKindPill {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-ghost);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.rmKindPill:hover {
+    border-color: var(--accent);
+    background: var(--surface-active);
+}
+
+.rmKindPillOn {
+    border-color: var(--accent) !important;
+    background: var(--surface-active) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.rmKindEmoji { font-size: 16px; line-height: 1; }
+.rmKindLabel { font-size: 12px; font-weight: 700; }
+.rmKindHint  { font-size: 10.5px; opacity: 0.55; }
+
+/* ── Billing type toggle cards ── */
+.rmBillingToggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.rmBillingCard {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-ghost);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.rmBillingCard:hover {
+    border-color: var(--accent);
+    background: var(--surface-active);
+}
+
+.rmBillingCardOn {
+    border-color: var(--accent) !important;
+    background: var(--surface-active) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.rmBillingEmoji     { font-size: 18px; line-height: 1; }
+.rmBillingCardTitle { font-size: 13px; font-weight: 800; }
+.rmBillingCardHint  { font-size: 11px; opacity: 0.6; }
+
+/* ── ₱ prefix input ── */
+.rmInputPrefix {
+    display: flex;
+    align-items: center;
+    border-radius: 14px;
+    border: 1px solid var(--input-border-color);
+    background: var(--input-bg);
+    overflow: hidden;
+}
+
+.rmPrefix {
+    padding: 0 10px;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    border-right: 1px solid var(--input-border-color);
+}
+
+.rmInputWithPrefix {
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    flex: 1;
+}
+/* Normalise CategoryPicker inside the modal to match rmLabel/rmInput rhythm */
+.rmSection .catpicker {
+    display: block;
+}
+
+.rmSection .catpicker .label {
+    display: block;
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 6px;
+}
+
+/* Force same height as .rmInput */
+.rmSection .catpicker .input {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    padding: 10px 38px 10px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--input-border-color);
+    background: var(--input-bg);
+}
+
+/* Align grid columns from their tops so labels + inputs stay level */
+.rmGrid2 {
+    align-items: start;
 }
 
 .rmLabel {

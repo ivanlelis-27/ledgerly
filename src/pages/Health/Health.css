@@ -474,10 +474,29 @@
     }
 }
 
-/* ---------- Skeleton loading for AI insights ---------- */
+/* ---------- Skeleton loading ---------- */
 
 .skeleton-card {
     pointer-events: none;
+}
+
+/* Matches the 180×160 SVG gauge */
+.skeleton-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: var(--border-color);
+    animation: skeletonPulse 1.4s infinite ease-in-out;
+}
+
+/* Matches the grade badge below the gauge */
+.skeleton-badge {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--border-color);
+    animation: skeletonPulse 1.4s infinite ease-in-out;
+    margin-top: -28px; /* overlap like the real badge */
 }
 
 .skeleton-icon {

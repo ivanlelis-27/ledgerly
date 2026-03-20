@@ -12,9 +12,7 @@ import type {
 } from "../../../types/recurring";
 import {
     AUTO_ADD_TIMING,
-    BILLING_TYPE,
     RECUR_FREQUENCY,
-    RECUR_KIND,
     RECUR_STATUS,
 } from "../../../types/recurring";
 import { PAYMENT_METHODS, type PaymentMethod } from "../../../types/expense";
@@ -22,6 +20,7 @@ import { todayISO } from "../../../lib/dates";
 import { calcNextDueDate } from "../../../lib/recurring_schedule";
 import { deleteRecurringItem, insertExpense, upsertRecurringItem } from "../../../lib/data";
 import CategoryPicker from "../../CategoryPicker/CategoryPicker";
+import { useAiCategoryHint } from "../../../lib/useAiCategoryHint";
 import "./RecurringModal.css";
 
 type Mode = "add" | "edit";
@@ -89,6 +88,8 @@ export default function RecurringModal({ open, mode, initial, onClose, onAfterSa
     const [category, setCategory] = useState(base.category);
     const [subcategory, setSubcategory] = useState(base.subcategory ?? "");
     const [tagsRaw, setTagsRaw] = useState((base.tags ?? []).join(", "));
+    // true once the user has manually chosen a category — suppresses AI hints
+    const [categoryManual, setCategoryManual] = useState(base.category !== "");
 
     const [billingType, setBillingType] = useState<BillingType>(base.billingType);
     const [amount, setAmount] = useState(String(base.amount ?? 0));
@@ -133,6 +134,7 @@ export default function RecurringModal({ open, mode, initial, onClose, onAfterSa
         setCategory(base.category);
         setSubcategory(base.subcategory ?? "");
         setTagsRaw((base.tags ?? []).join(", "));
+        setCategoryManual(base.category !== "");
 
         setBillingType(base.billingType);
         setAmount(String(base.amount ?? 0));
@@ -178,6 +180,12 @@ export default function RecurringModal({ open, mode, initial, onClose, onAfterSa
         });
         setNextDueDate(next);
     }, [open, nextEdited, startDate, frequency, customEveryDays, monthlyDayMode, missingDayRule]);
+
+    // AI category hint — local dict + debounced Groq for unknowns
+    const { hint: catHint, loading: catHintLoading, clearHint } = useAiCategoryHint(
+        name,
+        !categoryManual && mode === "add",
+    );
 
     if (!open) return null;
 
@@ -335,13 +343,66 @@ export default function RecurringModal({ open, mode, initial, onClose, onAfterSa
         }
     }
 
+    // ── Infer RecurringKind from AI-suggested category ────────
+    function inferKind(cat: string, sub: string): RecurringKind {
+        const c = cat.toLowerCase();
+        const s = sub.toLowerCase();
+        if (c.includes("subscription"))            return "subscription";
+        if (s === "rent" || s.includes("rent"))    return "rent";
+        if (c.includes("utilities") || c.includes("bills")) return "utility";
+        if (c.includes("debt") || c.includes("payment")) return "loan";
+        if (s === "gym" || s.includes("membership")) return "membership";
+        if (c.includes("insurance") || s.includes("insurance")) return "insurance";
+        return kind; // keep current kind if no clear match
+    }
+
+    // ── Human-friendly label maps ──────────────────────────────
+    const KIND_OPTIONS: { value: RecurringKind; emoji: string; label: string; hint: string }[] = [
+        { value: "subscription", emoji: "📱", label: "Subscription",  hint: "Netflix, Spotify…"   },
+        { value: "utility",      emoji: "⚡", label: "Utility",       hint: "Electricity, Water…" },
+        { value: "rent",         emoji: "🏠", label: "Rent",          hint: "Monthly rent"        },
+        { value: "insurance",    emoji: "🛡️", label: "Insurance",    hint: "Health, Life…"       },
+        { value: "loan",         emoji: "💳", label: "Loan / Debt",   hint: "Credit, SSS…"        },
+        { value: "membership",   emoji: "🎁", label: "Membership",    hint: "Gym, Club…"          },
+    ];
+
+    const FREQ_LABELS: Record<string, string> = {
+        weekly:    "Every week",
+        biweekly:  "Every 2 weeks",
+        monthly:   "Every month",
+        quarterly: "Every 3 months",
+        yearly:    "Every year",
+        custom:    "Custom interval",
+    };
+
+    const TIMING_LABELS: Record<string, string> = {
+        on_due:       "On the due date",
+        day_before:   "1 day before it's due",
+        on_mark_paid: "Only when I mark it paid",
+    };
+
+    const STATUS_LABELS: Record<string, string> = {
+        active:    "Active",
+        paused:    "Paused",
+        trial:     "On trial",
+        cancelled: "Cancelled",
+    };
+
     return (
         <div className="rmOverlay" onMouseDown={onClose}>
             <div className="rmModal" onMouseDown={(e) => e.stopPropagation()}>
+
+                {/* Header */}
                 <div className="rmTop">
                     <div>
-                        <div className="rmTitle">{mode === "add" ? "Add recurring" : "Edit recurring"}</div>
-                        <div className="rmSub">Fill in the details below — dates are auto-calculated.</div>
+                        <div className="rmTitle">
+                            {mode === "add" ? "Track a Recurring Bill" : "Edit Recurring Bill"}
+                        </div>
+                        <div className="rmSub">
+                            {mode === "add"
+                                ? "Set it up once — we'll remind you and log it automatically."
+                                : "Update the details for this recurring item."}
+                        </div>
                     </div>
                     <div className="rmTopActions">
                         {mode === "edit" && (
@@ -360,102 +421,222 @@ export default function RecurringModal({ open, mode, initial, onClose, onAfterSa
                 </div>
 
                 <div className="rmBody">
-                    {/* Section 1 — Basic */}
+
+                    {/* ── Section 1: What is it? ── */}
                     <div className="rmSection">
-                        <div className="rmH">1) Basic</div>
+                        <div className="rmSectionHead">
+                            <span className="rmSectionIcon">📋</span>
+                            <div>
+                                <div className="rmH">What is it?</div>
+                                <div className="rmHint">Name and type of this recurring item.</div>
+                            </div>
+                        </div>
 
                         <div className="rmGrid2">
                             <div>
                                 <label className="rmLabel">Name *</label>
-                                <input className="rmInput" value={name} onChange={(e) => setName(e.target.value)} placeholder="Netflix" />
+                                <input
+                                    className="rmInput"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="e.g. Netflix, Meralco, BPI loan"
+                                />
                             </div>
-
                             <div>
-                                <label className="rmLabel">Type</label>
-                                <select className="rmInput" value={kind} onChange={(e) => setKind(e.target.value as RecurringKind)}>
-                                    {RECUR_KIND.map((k) => (
-                                        <option key={k} value={k}>{k}</option>
-                                    ))}
-                                </select>
+                                <CategoryPicker
+                                    valueCategory={category}
+                                    valueSubcategory={subcategory}
+                                    onPick={(c, s) => {
+                                        setCategory(c);
+                                        setSubcategory(s || "");
+                                        setCategoryManual(true);
+                                        clearHint();
+                                    }}
+                                    recent={[]}
+                                />
                             </div>
                         </div>
 
-                        <CategoryPicker
-                            valueCategory={category}
-                            valueSubcategory={subcategory}
-                            onPick={(c, s) => { setCategory(c); setSubcategory(s || ""); }}
-                            recent={[]}
-                        />
-
-                        <div className="rmGrid2">
-                            <div>
-                                <label className="rmLabel">Tags (comma-separated)</label>
-                                <input className="rmInput" value={tagsRaw} onChange={(e) => setTagsRaw(e.target.value)} placeholder="entertainment, family" />
+                        {/* AI category suggestion chip */}
+                        {catHintLoading && !category && (
+                            <div className="rmAiHint rmAiHintLoading">
+                                <span className="rmAiSpinner" />
+                                Suggesting category…
                             </div>
+                        )}
+                        {catHint && !categoryManual && (
+                            <div className="rmAiHint">
+                                <span className="rmAiStar">✦</span>
+                                <span className="rmAiHintText">
+                                    Suggested: <strong>{catHint.category}</strong>
+                                    {catHint.subcategory ? ` / ${catHint.subcategory}` : ""}
+                                </span>
+                                <button
+                                    type="button"
+                                    className="rmAiApply"
+                                    onClick={() => {
+                                        setCategory(catHint.category);
+                                        setSubcategory(catHint.subcategory);
+                                        setKind(inferKind(catHint.category, catHint.subcategory));
+                                        clearHint();
+                                        // NOTE: categoryManual stays false so re-typing name
+                                        // still triggers new suggestions
+                                    }}
+                                >
+                                    Apply
+                                </button>
+                                <button type="button" className="rmAiDismiss" onClick={clearHint}>✕</button>
+                            </div>
+                        )}
+
+                        {/* Kind pill selector */}
+                        <div>
+                            <label className="rmLabel">Type</label>
+                            <div className="rmKindGrid">
+                                {KIND_OPTIONS.map((opt) => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        className={`rmKindPill${kind === opt.value ? " rmKindPillOn" : ""}`}
+                                        onClick={() => setKind(opt.value)}
+                                        title={opt.hint}
+                                    >
+                                        <span className="rmKindEmoji">{opt.emoji}</span>
+                                        <span className="rmKindLabel">{opt.label}</span>
+                                        <span className="rmKindHint">{opt.hint}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="rmLabel">Labels / tags <span className="rmOptional">(optional)</span></label>
+                            <input
+                                className="rmInput"
+                                value={tagsRaw}
+                                onChange={(e) => setTagsRaw(e.target.value)}
+                                placeholder="e.g. streaming, family, online — separate with commas"
+                            />
                         </div>
                     </div>
 
-                    {/* Section 2 — Amount */}
+                    {/* ── Section 2: How much? ── */}
                     <div className="rmSection">
-                        <div className="rmH">2) Amount</div>
+                        <div className="rmSectionHead">
+                            <span className="rmSectionIcon">💰</span>
+                            <div>
+                                <div className="rmH">How much?</div>
+                                <div className="rmHint">Enter the amount and whether it's always the same.</div>
+                            </div>
+                        </div>
+
+                        {/* Billing type toggle */}
+                        <div className="rmBillingToggle">
+                            <button
+                                type="button"
+                                className={`rmBillingCard${billingType === "fixed" ? " rmBillingCardOn" : ""}`}
+                                onClick={() => setBillingType("fixed")}
+                            >
+                                <span className="rmBillingEmoji">🔒</span>
+                                <span className="rmBillingCardTitle">Fixed amount</span>
+                                <span className="rmBillingCardHint">Always the same (e.g. Netflix ₱549)</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`rmBillingCard${billingType === "variable" ? " rmBillingCardOn" : ""}`}
+                                onClick={() => setBillingType("variable")}
+                            >
+                                <span className="rmBillingEmoji">📊</span>
+                                <span className="rmBillingCardTitle">Variable amount</span>
+                                <span className="rmBillingCardHint">Changes each cycle (e.g. electricity)</span>
+                            </button>
+                        </div>
 
                         <div className="rmGrid2">
                             <div>
-                                <label className="rmLabel">Amount *</label>
-                                <input className="rmInput" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="549" />
-                            </div>
-
-                            <div>
-                                <label className="rmLabel">Billing type</label>
-                                <select className="rmInput" value={billingType} onChange={(e) => setBillingType(e.target.value as BillingType)}>
-                                    {BILLING_TYPE.map((b) => <option key={b} value={b}>{b}</option>)}
-                                </select>
+                                <label className="rmLabel">
+                                    {billingType === "fixed" ? "Amount *" : "Typical / default amount"}
+                                </label>
+                                <div className="rmInputPrefix">
+                                    <span className="rmPrefix">₱</span>
+                                    <input
+                                        className="rmInput rmInputWithPrefix"
+                                        inputMode="decimal"
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        placeholder="0.00"
+                                    />
+                                </div>
                             </div>
                         </div>
 
                         {billingType === "variable" && (
                             <div className="rmGrid2">
                                 <div>
-                                    <label className="rmLabel">Typical min (optional)</label>
-                                    <input className="rmInput" inputMode="decimal" value={typMin} onChange={(e) => setTypMin(e.target.value)} placeholder="e.g. 800" />
+                                    <label className="rmLabel">Minimum expected <span className="rmOptional">(optional)</span></label>
+                                    <div className="rmInputPrefix">
+                                        <span className="rmPrefix">₱</span>
+                                        <input className="rmInput rmInputWithPrefix" inputMode="decimal" value={typMin} onChange={(e) => setTypMin(e.target.value)} placeholder="e.g. 800" />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label className="rmLabel">Typical max (optional)</label>
-                                    <input className="rmInput" inputMode="decimal" value={typMax} onChange={(e) => setTypMax(e.target.value)} placeholder="e.g. 2000" />
+                                    <label className="rmLabel">Maximum expected <span className="rmOptional">(optional)</span></label>
+                                    <div className="rmInputPrefix">
+                                        <span className="rmPrefix">₱</span>
+                                        <input className="rmInput rmInputWithPrefix" inputMode="decimal" value={typMax} onChange={(e) => setTypMax(e.target.value)} placeholder="e.g. 2000" />
+                                    </div>
                                 </div>
-
                                 <label className="rmToggle">
                                     <input
                                         type="checkbox"
                                         checked={askConfirmAmountBeforeAutoAdd}
                                         onChange={(e) => setAskConfirmAmountBeforeAutoAdd(e.target.checked)}
                                     />
-                                    Ask me to confirm amount before auto-adding
+                                    Ask me to confirm the amount before logging it
                                 </label>
                             </div>
                         )}
                     </div>
 
-                    {/* Section 3 — Schedule */}
+                    {/* ── Section 3: When is it due? ── */}
                     <div className="rmSection">
-                        <div className="rmH">3) Schedule</div>
-
-                        <div className="rmGrid3 rmScheduleGrid">
+                        <div className="rmSectionHead">
+                            <span className="rmSectionIcon">📅</span>
                             <div>
-                                <label className="rmLabel">Frequency</label>
+                                <div className="rmH">When is it due?</div>
+                                <div className="rmHint">Set how often it recurs and its next payment date.</div>
+                            </div>
+                        </div>
+
+                        <div className="rmGrid2">
+                            <div>
+                                <label className="rmLabel">How often?</label>
                                 <select
                                     className="rmInput"
                                     value={frequency}
                                     onChange={(e) => setFrequency(e.target.value as RecurringFrequency)}
                                 >
                                     {RECUR_FREQUENCY.map((f) => (
-                                        <option key={f} value={f}>{f}</option>
+                                        <option key={f} value={f}>{FREQ_LABELS[f] ?? f}</option>
                                     ))}
                                 </select>
                             </div>
 
+                            {frequency === "custom" && (
+                                <div>
+                                    <label className="rmLabel">Every how many days?</label>
+                                    <input
+                                        className="rmInput"
+                                        inputMode="numeric"
+                                        value={customEveryDays}
+                                        onChange={(e) => setCustomEveryDays(e.target.value)}
+                                        placeholder="30"
+                                    />
+                                </div>
+                            )}
+
                             <div>
-                                <label className="rmLabel">Start date *</label>
+                                <label className="rmLabel">First payment date *</label>
                                 <input
                                     className="rmInput"
                                     type="date"
@@ -465,34 +646,38 @@ export default function RecurringModal({ open, mode, initial, onClose, onAfterSa
                             </div>
 
                             <div>
-                                <label className="rmLabel">Next billing date</label>
+                                <label className="rmLabel">
+                                    Next payment date
+                                    {!nextEdited && <span className="rmAutoCalc"> — auto-calculated</span>}
+                                </label>
                                 <input
                                     className="rmInput"
                                     type="date"
                                     value={nextDueDate}
-                                    onChange={(e) => {
-                                        setNextDueDate(e.target.value);
-                                        setNextEdited(true);
-                                    }}
+                                    onChange={(e) => { setNextDueDate(e.target.value); setNextEdited(true); }}
                                 />
+                                {nextEdited && (
+                                    <button
+                                        className="rmMini rmRecalc"
+                                        type="button"
+                                        onClick={() => setNextEdited(false)}
+                                    >
+                                        ↺ Reset to auto-calculated
+                                    </button>
+                                )}
                             </div>
-
-                            <button
-                                className="rmMini rmRecalc"
-                                type="button"
-                                onClick={() => setNextEdited(false)}
-                                disabled={!nextEdited}
-                            >
-                                Recalculate
-                            </button>
                         </div>
                     </div>
 
-
-
-                    {/* Section 4 — Payment */}
+                    {/* ── Section 4: How do you pay? ── */}
                     <div className="rmSection">
-                        <div className="rmH">4) Payment</div>
+                        <div className="rmSectionHead">
+                            <span className="rmSectionIcon">💳</span>
+                            <div>
+                                <div className="rmH">How do you pay?</div>
+                                <div className="rmHint">Payment method and optional details for reference.</div>
+                            </div>
+                        </div>
 
                         <div className="rmGrid2">
                             <div>
@@ -501,36 +686,49 @@ export default function RecurringModal({ open, mode, initial, onClose, onAfterSa
                                     {PAYMENT_METHODS.map((p) => <option key={p} value={p}>{p}</option>)}
                                 </select>
                             </div>
-
                             <div>
-                                <label className="rmLabel">Card label (optional)</label>
-                                <input className="rmInput" value={cardLabel} onChange={(e) => setCardLabel(e.target.value)} placeholder="BPI Blue" />
+                                <label className="rmLabel">Card or account name <span className="rmOptional">(optional)</span></label>
+                                <input className="rmInput" value={cardLabel} onChange={(e) => setCardLabel(e.target.value)} placeholder="e.g. BPI Blue, Maya" />
                             </div>
-
                             <div>
-                                <label className="rmLabel">Merchant (optional)</label>
-                                <input className="rmInput" value={merchant} onChange={(e) => setMerchant(e.target.value)} placeholder="Netflix.com" />
+                                <label className="rmLabel">Merchant / website <span className="rmOptional">(optional)</span></label>
+                                <input className="rmInput" value={merchant} onChange={(e) => setMerchant(e.target.value)} placeholder="e.g. netflix.com, Meralco" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Section 5 — Automation */}
+                    {/* ── Section 5: Auto-tracking ── */}
                     <div className="rmSection">
-                        <div className="rmH">5) Automation</div>
+                        <div className="rmSectionHead">
+                            <span className="rmSectionIcon">⚙️</span>
+                            <div>
+                                <div className="rmH">Auto-tracking</div>
+                                <div className="rmHint">Let Ledgerly log this as an expense automatically.</div>
+                            </div>
+                        </div>
 
                         <label className="rmToggle">
                             <input type="checkbox" checked={autoAddExpense} onChange={(e) => setAutoAddExpense(e.target.checked)} />
-                            Auto-add expense entries (default ON)
+                            <div>
+                                <div style={{ fontWeight: 700, fontSize: 13 }}>Automatically record each payment</div>
+                                <div style={{ fontSize: 11.5, opacity: 0.7, marginTop: 2 }}>When this is due, add it to your expenses without manual action.</div>
+                            </div>
                         </label>
 
-                        <div className="rmGrid2">
+                        {autoAddExpense && (
                             <div>
-                                <label className="rmLabel">Auto-add timing</label>
-                                <select className="rmInput" value={autoAddTiming} onChange={(e) => setAutoAddTiming(e.target.value as AutoAddTiming)}>
-                                    {AUTO_ADD_TIMING.map((t) => <option key={t} value={t}>{t}</option>)}
+                                <label className="rmLabel">When should it be recorded?</label>
+                                <select
+                                    className="rmInput"
+                                    value={autoAddTiming}
+                                    onChange={(e) => setAutoAddTiming(e.target.value as AutoAddTiming)}
+                                >
+                                    {AUTO_ADD_TIMING.map((t) => (
+                                        <option key={t} value={t}>{TIMING_LABELS[t] ?? t}</option>
+                                    ))}
                                 </select>
                             </div>
-                        </div>
+                        )}
 
                         {billingType === "variable" && (
                             <label className="rmToggle">
@@ -539,43 +737,60 @@ export default function RecurringModal({ open, mode, initial, onClose, onAfterSa
                                     checked={requireConfirmationBeforeAdding}
                                     onChange={(e) => setRequireConfirmationBeforeAdding(e.target.checked)}
                                 />
-                                Require confirmation before adding (variable)
+                                <div>
+                                    <div style={{ fontWeight: 700, fontSize: 13 }}>Ask me before recording (variable amount)</div>
+                                    <div style={{ fontSize: 11.5, opacity: 0.7, marginTop: 2 }}>You'll confirm the exact amount each time instead of using the default.</div>
+                                </div>
                             </label>
                         )}
                     </div>
 
-                    {/* Section 6 — Status + Lifecycle */}
+                    {/* ── Section 6: Status & Notes ── */}
                     <div className="rmSection">
-                        <div className="rmH">6) Status + Lifecycle</div>
+                        <div className="rmSectionHead">
+                            <span className="rmSectionIcon">🏷️</span>
+                            <div>
+                                <div className="rmH">Status & Notes</div>
+                                <div className="rmHint">Is this active? Set an end date or add notes.</div>
+                            </div>
+                        </div>
 
                         <div className="rmGrid2">
                             <div>
                                 <label className="rmLabel">Status</label>
                                 <select className="rmInput" value={status} onChange={(e) => setStatus(e.target.value as RecurringStatus)}>
-                                    {RECUR_STATUS.map((s) => <option key={s} value={s}>{s}</option>)}
+                                    {RECUR_STATUS.map((s) => (
+                                        <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
+                                    ))}
                                 </select>
                             </div>
 
                             {status === "trial" && (
                                 <div>
-                                    <label className="rmLabel">Trial end date</label>
+                                    <label className="rmLabel">Trial ends on</label>
                                     <input className="rmInput" type="date" value={trialEndDate} onChange={(e) => setTrialEndDate(e.target.value)} />
                                 </div>
                             )}
 
                             <div>
-                                <label className="rmLabel">End date (optional)</label>
+                                <label className="rmLabel">Expires / ends on <span className="rmOptional">(optional)</span></label>
                                 <input className="rmInput" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                             </div>
                         </div>
 
                         <div>
-                            <label className="rmLabel">Notes</label>
-                            <textarea className="rmTextarea" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="account email, plan tier, who uses it…" />
+                            <label className="rmLabel">Notes <span className="rmOptional">(optional)</span></label>
+                            <textarea
+                                className="rmTextarea"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                placeholder="e.g. account email, plan tier, who uses it…"
+                            />
                         </div>
                     </div>
                 </div>
 
+                {/* Footer */}
                 <div className="rmFooter">
                     <button className="rmGhost" onClick={onClose} disabled={saving}>Cancel</button>
                     <div className="rmRight">
@@ -583,10 +798,11 @@ export default function RecurringModal({ open, mode, initial, onClose, onAfterSa
                             {saving ? "Saving…" : "Save"}
                         </button>
                         <button className="rmPrimary" onClick={saveAndAddNow} disabled={saving}>
-                            {saving ? "Saving…" : "Save & Add Now"}
+                            {saving ? "Saving…" : "Save & Record Now"}
                         </button>
                     </div>
                 </div>
+
             </div>
         </div>
     );

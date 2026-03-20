@@ -380,7 +380,76 @@ export default function Health() {
     */
     const { insights: aiInsights, loading: aiLoading } = useHealthInsights(score ?? null);
 
-    if (loading) return <div className="health-loading">Calculating your score…</div>;
+    if (loading) {
+        return (
+            <div className="health-page">
+                {/* Header stays real */}
+                <div className="health-header">
+                    <div>
+                        <h1 className="health-title">Financial Health Score</h1>
+                        <p className="health-subtitle">A personalised 0–100 score based on 5 key areas of your finances.</p>
+                    </div>
+                </div>
+
+                {/* Hero skeleton */}
+                <div className="health-hero">
+                    <div className="health-gauge-wrap">
+                        <div className="skeleton-circle" />
+                        <div className="skeleton-badge" />
+                    </div>
+                    <div className="health-hero-right">
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            <div className="skeleton-line" style={{ height: 26, width: "65%" }} />
+                            <div className="skeleton-line" style={{ width: "88%" }} />
+                            <div className="skeleton-line short" />
+                        </div>
+                        <div className="health-overview-bars">
+                            {[72, 55, 80, 40, 65].map((w, i) => (
+                                <div key={i} className="health-bar-row">
+                                    <div className="skeleton-line" style={{ width: 110, height: 9, flexShrink: 0 }} />
+                                    <div className="health-bar-track" style={{ flex: 1 }}>
+                                        <div className="skeleton-line" style={{ width: `${w}%`, height: "100%", borderRadius: 99 }} />
+                                    </div>
+                                    <div className="skeleton-line" style={{ width: 32, height: 9, flexShrink: 0 }} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Metrics skeleton */}
+                <div>
+                    <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>Key Metrics</p>
+                    <div className="health-metrics-row">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="health-metric">
+                                <div className="skeleton-line" style={{ width: 80, height: 9 }} />
+                                <div className="skeleton-line" style={{ width: "65%", height: 24, marginTop: 4 }} />
+                                <div className="skeleton-line" style={{ width: 55, height: 9 }} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Recommendations skeleton */}
+                <div>
+                    <p className="health-section-title" style={{ marginBottom: "0.75rem" }}>Personalised Recommendations</p>
+                    <div className="health-recs-grid">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="health-rec-card skeleton-card">
+                                <div className="skeleton-icon" />
+                                <div className="health-rec-body">
+                                    <div className="skeleton-line skeleton-title" />
+                                    <div className="skeleton-line" />
+                                    <div className="skeleton-line short" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (!profile) {
         return (

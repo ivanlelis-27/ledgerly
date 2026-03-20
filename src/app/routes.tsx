@@ -14,6 +14,7 @@ import Settings from "../pages/Settings/Settings";
 import Salary from "../pages/Salary/Salary";
 import Profile from "../pages/Profile/Profile.tsx";
 import Advisor from "../pages/Advisor/Advisor";
+import Onboarding from "../pages/Onboarding/Onboarding";
 
 export type AppRoute = {
     path: string;
@@ -27,6 +28,7 @@ export const routes: AppRoute[] = [
     // public
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
+    { path: "/onboarding", element: <RequireAuth><Onboarding /></RequireAuth> },
 
     // protected
     {

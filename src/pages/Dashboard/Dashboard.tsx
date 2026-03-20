@@ -1,8 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { expensesToCSV, downloadTextFile } from "../../lib/csv";
 import type { Expense } from "../../types/expense";
 import ExpenseList from "../../components/ExpenseList/ExpenseList";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useExpenses } from "../../lib/useExpenses";
 import { useRecurringItems } from "../../lib/useRecurringItems";
 import { useUserSettings } from "../../lib/useUserSettings";
@@ -12,6 +12,7 @@ import AiInsightBanner from "../../components/AiInsightBanner/AiInsightBanner";
 import { removeExpense } from "../../lib/data";
 import { usePullToRefresh } from "../../lib/usePullToRefresh";
 import PullToRefreshIndicator from "../../components/PullToRefreshIndicator/PullToRefreshIndicator";
+import { useSavings } from "../../lib/useSavings";
 import "./Dashboard.css";
 
 // ─── Local-time date helpers ──────────────────────────────────
@@ -53,10 +54,10 @@ function localMonthEnd(): string {
  * Start of the current week in local time.
  * weekStart: "monday" (1), "sunday" (0), "saturday" (6)
  */
-function localWeekStart(weekStartPref: string): string {
+function localWeekStart(weekStartPref: number): string {
     const today = new Date();
     const dow = today.getDay(); // 0=Sun, 1=Mon … 6=Sat
-    const startDow = weekStartPref === "monday" ? 1 : weekStartPref === "saturday" ? 6 : 0;
+    const startDow = weekStartPref; // Now a number (0=Sun, 1=Mon, 6=Sat)
     let diff = dow - startDow;
     if (diff < 0) diff += 7;
     const start = new Date(today);
@@ -65,7 +66,7 @@ function localWeekStart(weekStartPref: string): string {
 }
 
 /** Previous period start/end for delta comparison */
-function prevPeriod(range: RangeKey, customStart: string, customEnd: string, weekStartPref: string): [string, string] {
+function prevPeriod(range: RangeKey, customStart: string, customEnd: string, weekStartPref: number): [string, string] {
     if (range === "today") {
         const prev = localDaysOffset(-1);
         return [prev, prev];
@@ -122,14 +123,23 @@ export default function Dashboard() {
 
     const { expenses: all, error: expensesError, refetch: refetchExpenses } = useExpenses();
     const { recurring: recurringAll, error: recurringError, refetch: refetchRecurring } = useRecurringItems();
-    const { settings } = useUserSettings();
+    const { settings, loading: settingsLoading } = useUserSettings();
     const { profile: salaryProfile } = useSalaryProfile();
+    const { goals, refetch: refetchSavings } = useSavings();
+    const nav = useNavigate();
+
+    useEffect(() => {
+        if (!settingsLoading && !settings.onboardingCompleted) {
+            nav("/onboarding", { replace: true });
+        }
+    }, [settingsLoading, settings, nav]);
+
     const weekStartPref = settings.weekStart ?? "monday";
 
     // Pull-to-refresh
     const onRefresh = useCallback(async () => {
-        await Promise.all([refetchExpenses(), refetchRecurring()]);
-    }, [refetchExpenses, refetchRecurring]);
+        await Promise.all([refetchExpenses(), refetchRecurring(), refetchSavings()]);
+    }, [refetchExpenses, refetchRecurring, refetchSavings]);
 
     const { phase: ptrPhase, pullY } = usePullToRefresh({ onRefresh });
 
@@ -250,6 +260,20 @@ export default function Dashboard() {
     }
 
     const currentLabel = rangeLabel(range, rangeStart, rangeEnd);
+    const { budgetStyle, financialGoal, focusCategories } = settings;
+
+    // Filter top categories if focusCategories is set
+    const displayTopCategories = useMemo(() => {
+        if (!focusCategories || focusCategories.length === 0) return topCategories;
+        // Move focus categories to top
+        const focusOn = topCategories.filter(([cat]) => focusCategories.includes(cat));
+        const others = topCategories.filter(([cat]) => !focusCategories.includes(cat));
+        return [...focusOn, ...others].slice(0, 5);
+    }, [topCategories, focusCategories]);
+
+    const isMinimalist = budgetStyle === "minimalist";
+    const isGoalSeeker = budgetStyle === "goal-seeker";
+    const isOptimizer = budgetStyle === "optimizer";
 
     return (
         <div className="dash">
@@ -257,30 +281,31 @@ export default function Dashboard() {
 
             {/* ── Header ── */}
             <div className="headerRow">
-                <div>
-                    <h1 className="title">Dashboard</h1>
-                    <div className="subtitle">Track your spending across time</div>
-                    {expensesError && <div style={{ color: "var(--danger, #dc2626)", fontSize: 13 }}>{expensesError}</div>}
-                    {recurringError && <div style={{ color: "var(--danger, #dc2626)", fontSize: 13 }}>{recurringError}</div>}
-                </div>
+                <div className="headerTop">
+                    <div className="headerTitleBlock">
+                        <h1 className="title">Dashboard</h1>
+                        {!isMinimalist && <div className="subtitle">Track your spending across time</div>}
+                        {expensesError && <div style={{ color: "var(--danger, #dc2626)", fontSize: 13 }}>{expensesError}</div>}
+                        {recurringError && <div style={{ color: "var(--danger, #dc2626)", fontSize: 13 }}>{recurringError}</div>}
+                    </div>
 
-                <div className="controls">
-                    {/* Range picker */}
-                    <div className="rangeBlock">
-                        <div className="seg">
-                            {(["today", "week", "month", "custom"] as RangeKey[]).map(r => (
-                                <button
-                                    key={r}
-                                    className={range === r ? "on" : ""}
-                                    onClick={() => setRange(r)}
-                                >
-                                    {r.charAt(0).toUpperCase() + r.slice(1)}
-                                </button>
-                            ))}
-                        </div>
+                    {/* Tabs only — no sub-row */}
+                    <div className="seg">
+                        {(["today", "week", "month", "custom"] as RangeKey[]).map(r => (
+                            <button
+                                key={r}
+                                className={range === r ? "on" : ""}
+                                onClick={() => setRange(r)}
+                            >
+                                {r.charAt(0).toUpperCase() + r.slice(1)}
+                            </button>
+                        ))}
+                    </div>
 
+                    {/* Date context + actions — all right-aligned */}
+                    <div className="headerActions">
                         {range === "custom" ? (
-                            <div className="customDates">
+                            <>
                                 <input
                                     type="date"
                                     className="dateInput"
@@ -296,14 +321,11 @@ export default function Dashboard() {
                                     min={customStart}
                                     onChange={e => setCustomEnd(e.target.value)}
                                 />
-                            </div>
+                            </>
                         ) : (
-                            <div className="rangeLabel">{currentLabel}</div>
+                            <span className="rangeLabel">{currentLabel}</span>
                         )}
-                    </div>
-
-                    <div className="controlActions">
-                        <button className="ghost" onClick={exportCSV}>Export CSV</button>
+                        <button className="ghost" onClick={exportCSV}>↓ CSV</button>
                         <button className="ghost" onClick={() => { void refetchExpenses(); void refetchRecurring(); }}>↺ Refresh</button>
                     </div>
                 </div>
@@ -326,27 +348,31 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                <div className="summaryCard">
-                    <div className="kLabel">Transactions</div>
-                    <div className="kValue">{txCount}</div>
-                    <div className="kSub">
-                        <span className="muted">Avg/day: ₱{fmtMoney(avgPerDay)}</span>
+                {!isMinimalist && (
+                    <div className="summaryCard">
+                        <div className="kLabel">Transactions</div>
+                        <div className="kValue">{txCount}</div>
+                        <div className="kSub">
+                            <span className="muted">Avg/day: ₱{fmtMoney(avgPerDay)}</span>
+                        </div>
                     </div>
-                </div>
+                )}
 
-                <div className="summaryCard">
-                    <div className="kLabel">Biggest expense</div>
-                    <div className="kValue">{biggest ? `₱${fmtMoney(Number(biggest.amount))}` : "—"}</div>
-                    <div className="kSub">
-                        {biggest ? (
-                            <span className="muted">
-                                {biggest.category}{biggest.subcategory ? ` / ${biggest.subcategory}` : ""}
-                            </span>
-                        ) : (
-                            <span className="muted">No data</span>
-                        )}
+                {!isMinimalist && (
+                    <div className="summaryCard">
+                        <div className="kLabel">Biggest expense</div>
+                        <div className="kValue">{biggest ? `₱${fmtMoney(Number(biggest.amount))}` : "—"}</div>
+                        <div className="kSub">
+                            {biggest ? (
+                                <span className="muted">
+                                    {biggest.category}{biggest.subcategory ? ` / ${biggest.subcategory}` : ""}
+                                </span>
+                            ) : (
+                                <span className="muted">No data</span>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <div className="summaryCard">
                     <div className="kLabel">Remaining budget</div>
@@ -382,67 +408,87 @@ export default function Dashboard() {
 
 
             {/* ── AI Insight Banner ── */}
-            <AiInsightBanner {...aiInsights} />
+            {(!isMinimalist || isOptimizer) && <AiInsightBanner {...aiInsights} />}
+
+            {/* ── Savings Goals (Personalized for 'save' goal or 'goal-seeker' style) ── */}
+            {(financialGoal === "save" || isGoalSeeker) && goals.length > 0 && (
+                <div className="savingsWidget">
+                    <div className="sectionTitle">Savings Progress</div>
+                    <div className="savingsGrid">
+                        {goals.filter(g => g.status === "active").slice(0, 3).map(goal => {
+                            const pct = Math.min(100, Math.round((goal.currentAmount / goal.targetAmount) * 100));
+                            return (
+                                <div className="saveCard" key={goal.id} onClick={() => nav("/savings")}>
+                                    <div className="saveEmoji">{goal.emoji || "💰"}</div>
+                                    <div className="saveInfo">
+                                        <div className="saveName">{goal.name}</div>
+                                        <div className="savePct">{pct}%</div>
+                                        <div className="saveBar"><div className="saveFill" style={{ width: `${pct}%`, background: goal.color }} /></div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             {/* ── Main grid ── */}
             <div className="grid">
-                <div className="leftCol">
-                    {/* Top spends */}
-                    <div className="card topSpendsCard">
-                        <div className="cardTitle">Top spending categories</div>
+                {/* Top spends */}
+                <div className="card topSpendsCard">
+                    <div className="cardTitle">Top spending categories</div>
 
-                        {topCategories.length === 0 ? (
-                            <div className="empty">No expenses in this period.</div>
-                        ) : (
-                            <div className="topList">
-                                {topCategories.map(([name, amt]) => {
-                                    const pct = total > 0 ? (amt / total) * 100 : 0;
-                                    return (
-                                        <div className="topBarRow" key={name}>
-                                            <div className="topBarHead">
-                                                <span className="topName">{name}</span>
-                                                <span className="topAmt">₱{fmtMoney(amt)}</span>
-                                            </div>
-                                            <div className="barTrack">
-                                                <div className="barFill" style={{ width: `${Math.min(100, pct)}%` }} />
-                                            </div>
-                                            <div className="barMeta">
-                                                <span className="muted">{pct.toFixed(0)}% of total</span>
-                                            </div>
+                    {displayTopCategories.length === 0 ? (
+                        <div className="empty">No expenses in this period.</div>
+                    ) : (
+                        <div className="topList">
+                            {displayTopCategories.map(([name, amt]) => {
+                                const pct = total > 0 ? (amt / total) * 100 : 0;
+                                return (
+                                    <div className="topBarRow" key={name}>
+                                        <div className="topBarHead">
+                                            <span className="topName">{name}</span>
+                                            <span className="topAmt">₱{fmtMoney(amt)}</span>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Upcoming recurring */}
-                    <div className="card">
-                        <div className="cardTitleRow">
-                            <div className="cardTitle">Upcoming (next 7 days)</div>
-                            <Link className="miniLink" to="/recurring">View all →</Link>
-                        </div>
-
-                        {upcomingRecurring.length === 0 ? (
-                            <div className="empty">No upcoming recurring bills.</div>
-                        ) : (
-                            <div className="upList">
-                                {upcomingRecurring.map(r => (
-                                    <div className="upRow" key={r.id}>
-                                        <div className="upMain">
-                                            <div className="upName">{r.name}</div>
-                                            <div className="upMeta">
-                                                <span className="pill">{r.paymentMethod}</span>
-                                                <span className="dot">•</span>
-                                                <span className="muted">{fmtShort(r.nextDueDate)}</span>
-                                            </div>
+                                        <div className="barTrack">
+                                            <div className="barFill" style={{ width: `${Math.min(100, pct)}%` }} />
                                         </div>
-                                        <div className="upAmt">₱{fmtMoney(Number(r.amount))}</div>
+                                        <div className="barMeta">
+                                            <span className="muted">{pct.toFixed(0)}% of total</span>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* Upcoming recurring */}
+                <div className="card upcomingCard">
+                    <div className="cardTitleRow">
+                        <div className="cardTitle">Upcoming (next 7 days)</div>
+                        <Link className="miniLink" to="/recurring">View all →</Link>
                     </div>
+
+                    {upcomingRecurring.length === 0 ? (
+                        <div className="empty">No upcoming recurring bills.</div>
+                    ) : (
+                        <div className="upList">
+                            {upcomingRecurring.map(r => (
+                                <div className="upRow" key={r.id}>
+                                    <div className="upMain">
+                                        <div className="upName">{r.name}</div>
+                                        <div className="upMeta">
+                                            <span className="pill">{r.paymentMethod}</span>
+                                            <span className="dot">•</span>
+                                            <span className="muted">{fmtShort(r.nextDueDate)}</span>
+                                        </div>
+                                    </div>
+                                    <div className="upAmt">₱{fmtMoney(Number(r.amount))}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Recent expenses */}
@@ -453,7 +499,7 @@ export default function Dashboard() {
                     </div>
                     <div className="cardBody">
                         <ExpenseList
-                            expenses={filtered.slice(0, 4)}
+                            expenses={filtered}
                             onDelete={handleDelete}
                         />
                     </div>

@@ -241,7 +241,15 @@ export default function Profile() {
                     <section className="card heroCard">
                         <div className={`avatar ${avatarPreview ? "withPhoto" : ""}`}>
                             {avatarPreview ? (
-                                <img src={avatarPreview} alt="Profile avatar" />
+                                <img
+                                    src={avatarPreview}
+                                    alt="Profile avatar"
+                                    referrerPolicy="no-referrer"
+                                    onError={(e) => {
+                                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                                        e.currentTarget.parentElement?.classList.remove("withPhoto");
+                                    }}
+                                />
                             ) : (
                                 <span aria-hidden="true">{initials}</span>
                             )}
@@ -298,7 +306,15 @@ export default function Profile() {
                             <div className="photoField">
                                 <div className={`photoPreview ${avatarPreview ? "withPhoto" : ""}`}>
                                     {avatarPreview ? (
-                                        <img src={avatarPreview} alt="Preview" />
+                                        <img
+                                            src={avatarPreview}
+                                            alt="Preview"
+                                            referrerPolicy="no-referrer"
+                                            onError={(e) => {
+                                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                                                e.currentTarget.parentElement?.classList.remove("withPhoto");
+                                            }}
+                                        />
                                     ) : (
                                         <span>{initials}</span>
                                     )}

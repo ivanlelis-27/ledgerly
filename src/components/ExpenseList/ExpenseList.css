@@ -1,15 +1,33 @@
-/* ── Outer list ─────────────────────────────── */
+/* ── Outer list ───────────────────────────────────────────────────── */
 .list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
 }
 
-/* ── Month section ──────────────────────────── */
+/* ── Empty state ─────────────────────────────────────────────────── */
+.listEmpty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.listEmptyIcon {
+    font-size: 28px;
+    opacity: 0.5;
+}
+
+/* ── Month section ────────────────────────────────────────────────── */
 .monthSection {
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 14px;
     overflow: hidden;
     background: var(--surface-card);
 }
@@ -19,8 +37,8 @@
     align-items: center;
     gap: 10px;
     width: 100%;
-    padding: 14px 16px;
-    background: transparent;
+    padding: 13px 16px;
+    background: var(--surface-ghost);
     border: none;
     cursor: pointer;
     text-align: left;
@@ -28,36 +46,30 @@
 }
 
 .monthHeader:hover {
-    background: var(--surface-hover, rgba(255,255,255,0.05));
+    background: rgba(99, 102, 241, 0.06);
 }
 
 .monthLabel {
-    font-weight: 700;
-    font-size: 15px;
+    font-weight: 800;
+    font-size: 14.5px;
     flex: 1;
+    letter-spacing: -0.02em;
 }
 
 .monthTotal {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 14px;
-    color: var(--accent, #a78bfa);
+    color: var(--accent);
 }
 
 .monthItems {
     display: flex;
     flex-direction: column;
-    gap: 0;
-    border-top: 1px solid var(--border-color);
-    padding: 10px 12px 12px;
-    gap: 8px;
 }
 
-/* ── Cutoff section ─────────────────────────── */
-.cutoffSection {
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--surface-base, transparent);
+/* ── Cutoff section ──────────────────────────────────────────────── */
+.cutoffSection + .cutoffSection {
+    border-top: 1px solid var(--border-color);
 }
 
 .cutoffHeader {
@@ -65,106 +77,182 @@
     align-items: center;
     gap: 8px;
     width: 100%;
-    padding: 10px 14px;
-    background: transparent;
+    padding: 7px 16px;
+    background: var(--surface-ghost);
     border: none;
+    border-top: 1px solid var(--border-color);
     cursor: pointer;
     text-align: left;
     transition: background 0.15s;
 }
 
 .cutoffHeader:hover {
-    background: var(--surface-hover, rgba(255,255,255,0.04));
+    background: rgba(99, 102, 241, 0.04);
 }
 
 .cutoffLabel {
-    font-weight: 600;
-    font-size: 13px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
     flex: 1;
-    color: var(--text-secondary, var(--text-muted));
 }
 
 .cutoffTotal {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary, inherit);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
 .cutoffCount {
-    font-size: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--surface-pill);
+    border: 1px solid var(--border-color);
     color: var(--text-muted);
-    margin-left: 4px;
+    letter-spacing: 0.02em;
 }
 
 .cutoffItems {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 8px 10px 10px;
-    border-top: 1px solid var(--border-color);
 }
 
-/* ── Individual expense row ─────────────────── */
-.expenseRow {
+/* ── Transaction row ─────────────────────────────────────────────── */
+.txRow {
     display: flex;
-    justify-content: space-between;
-    gap: 12px;
     align-items: center;
-    border: 1px solid var(--border-color);
+    gap: 12px;
+    padding: 11px 16px;
+    border-top: 1px solid var(--border-color);
     background: var(--surface-card);
-    border-radius: 12px;
-    padding: 10px 12px;
-    width: 100%;
+    transition: background 0.12s;
 }
 
-.left {
+.txRow:hover {
+    background: var(--surface-ghost);
+}
+
+/* Category color dot */
+.txDot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Body: category + meta */
+.txBody {
     flex: 1;
     min-width: 0;
 }
 
-.main {
+.txTop {
     display: flex;
-    gap: 10px;
     align-items: baseline;
+    gap: 5px;
     flex-wrap: wrap;
 }
 
-.amt {
+.txCat {
     font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.cat {
+.txSub {
+    font-weight: 500;
     color: var(--text-muted);
 }
 
-.meta {
-    font-size: 12px;
+.txNotes {
+    font-size: 11.5px;
     color: var(--text-muted);
-    margin-top: 4px;
+    font-style: italic;
+}
+
+.txMeta {
     display: flex;
+    align-items: center;
     gap: 6px;
+    margin-top: 3px;
     flex-wrap: wrap;
 }
 
-/* ── Chevron ────────────────────────────────── */
+.txDate {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.txMethod {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 1.5px 6px;
+    border-radius: 999px;
+    background: var(--surface-active, #e0e7ff);
+    color: var(--accent);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Right side: amount + delete */
+.txRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.txAmt {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-primary);
+    white-space: nowrap;
+    letter-spacing: -0.02em;
+}
+
+/* Delete — appears on row hover */
+.txDelete {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s, color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+
+.txRow:hover .txDelete {
+    opacity: 1;
+}
+
+.txDelete:hover {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+}
+
+/* ── Shared chevron ──────────────────────────────────────────────── */
 .chevron {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-muted);
-    width: 14px;
+    width: 12px;
     flex-shrink: 0;
-}
-
-/* ── Delete button ──────────────────────────── */
-.danger {
-    padding: 6px 10px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    flex-shrink: 0;
-    font-size: 13px;
-}
-
-/* ── Empty state ────────────────────────────── */
-.empty {
-    color: var(--text-muted);
-    padding: 10px 2px;
 }

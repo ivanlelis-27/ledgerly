@@ -172,40 +172,167 @@
     min-width: 0;
 }
 
-.editCard {
-    grid-column: 1 / -1;
+/* ── Edit profile button in hero card ── */
+.editProfileBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    padding: 8px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    background: var(--surface-active);
+    color: var(--text-primary);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
+.editProfileBtn:hover {
+    border-color: var(--accent);
+    background: var(--surface-ghost);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ── Ghost button (used inside modal) ── */
+.ghostBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+}
+
+.ghostBtn:hover:not(:disabled) {
+    background: var(--surface-ghost);
+}
+
+.ghostBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ── Edit Profile Modal ── */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    animation: modalFadeIn 0.18s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.modalCard {
+    width: 100%;
+    max-width: 460px;
+    background: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(16px) scale(0.97); opacity: 0; }
+    to   { transform: translateY(0) scale(1);       opacity: 1; }
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(135deg,
+        rgba(99, 102, 241, 0.06) 0%,
+        rgba(139, 92, 246, 0.04) 100%
+    );
+}
+
+.modalTitle {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.modalClose {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--surface-ghost);
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background 0.12s, color 0.12s;
+}
+
+.modalClose:hover {
+    background: var(--surface-active);
+    color: var(--text-primary);
+}
+
+/* Modal form body */
 .profileForm {
     display: grid;
-    gap: 16px;
+    gap: 20px;
+    padding: 20px;
 }
 
+/* Avatar section inside modal */
 .photoField {
     display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
+    flex-direction: column;
     align-items: center;
+    gap: 14px;
 }
 
 .photoPreview {
-    width: 88px;
-    height: 88px;
-    border-radius: 22px;
-    border: 1px dashed var(--border-color);
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 3px solid var(--border-color);
     display: grid;
     place-items: center;
     font-weight: 900;
-    font-size: 22px;
+    font-size: 28px;
     color: var(--text-muted);
-    background: var(--surface-ghost);
+    background: linear-gradient(135deg,
+        rgba(99, 102, 241, 0.1) 0%,
+        rgba(139, 92, 246, 0.08) 100%
+    );
     overflow: hidden;
-    flex: 0 0 auto;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
 .photoPreview.withPhoto {
-    border-style: solid;
-    border-color: var(--border-color);
+    border-color: var(--accent);
 }
 
 .photoPreview img {
@@ -219,7 +346,7 @@
 
 .photoActions {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 8px;
 }
 
@@ -227,22 +354,30 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 16px;
-    border-radius: 14px;
-    border: 1px solid var(--border-color);
-    background: var(--surface-active);
-    font-weight: 800;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1.5px solid var(--accent);
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--accent);
+    font-size: 12.5px;
+    font-weight: 700;
     cursor: pointer;
+    transition: background 0.12s;
+}
+
+.uploadBtn:hover {
+    background: rgba(99, 102, 241, 0.15);
 }
 
 .uploadBtn input {
     display: none;
 }
 
+/* Name input grid */
 .formGrid {
     display: grid;
     gap: 14px;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
 .field {
@@ -252,52 +387,76 @@
 }
 
 .fieldLabel {
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-muted);
 }
 
 .field input {
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
     border-radius: 12px;
-    padding: 10px 12px;
-    background: var(--surface-card);
-    font-size: 15px;
+    padding: 10px 13px;
+    background: var(--surface-ghost);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-primary);
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.field input:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+.field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
+.field input:disabled {
+    opacity: 0.5;
+}
+
+/* Modal footer */
 .formActions {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border-color);
 }
 
 .primaryBtn {
-    padding: 10px 18px;
-    border-radius: 16px;
+    padding: 10px 20px;
+    border-radius: 12px;
     font-weight: 800;
+    font-size: 13px;
     border: none;
-    background: var(--accent, #2563eb);
+    background: var(--accent, #6366f1);
     color: #fff;
     cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+}
+
+.primaryBtn:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.primaryBtn:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
 .primaryBtn:disabled {
-    opacity: 0.6;
+    opacity: 0.55;
     cursor: not-allowed;
 }
 
 .success {
     font-size: 12px;
-    color: var(--accent, #2563eb);
+    color: #22c55e;
+    font-weight: 600;
+    margin-right: auto;
 }
+
 
 /* Code chip that doesn't destroy layout */
 .code {

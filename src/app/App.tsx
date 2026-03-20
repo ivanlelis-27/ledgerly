@@ -3,7 +3,7 @@ import { routes } from "./routes";
 import Layout from "../components/Layout/Layout";
 // import InstallBanner from "../components/InstallBanner/InstallBanner";
 
-const NO_LAYOUT_PREFIXES = ["/login", "/register"];
+const NO_LAYOUT_PREFIXES = ["/login", "/register", "/onboarding"];
 
 export default function App() {
     const { pathname } = useLocation();

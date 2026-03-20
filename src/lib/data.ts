@@ -174,7 +174,6 @@ export async function fetchRecurringItemsForUser(
 
     if (error) throw error;
     const rows = (data ?? []).map(mapRecurringRow);
-    console.log("[Supabase] fetched recurring items", rows);
     return rows;
 }
 
@@ -219,7 +218,6 @@ export async function fetchSalaryProfileForUser(
     const c2Ded = Number(data.cutoff2_deductions || 0);
     const c2Net = Number(data.cutoff2_net || (c2Gross - c2Ded));
 
-    // If cutoffs are set, derive total from nets; otherwise fall back to stored monthly_income
     const hasCutoffs = c1Gross > 0 || c2Gross > 0;
     const monthlyIncome = hasCutoffs
         ? (c1Net + c2Net)
@@ -235,7 +233,6 @@ export async function fetchSalaryProfileForUser(
         cutoff2Deductions: c2Ded,
         cutoff2Net: c2Net,
     };
-    console.log("[Supabase] fetched salary profile", profile);
     return profile;
 }
 
@@ -255,7 +252,6 @@ export async function upsertSalaryProfile(
     const target = await requireUserId(userId);
     const now = opts?.updatedAt ?? Date.now();
 
-    // Legacy: allow passing a plain number for backward compat
     const p: UpsertSalaryPayload = typeof payload === "number"
         ? { monthlyIncome: payload }
         : payload;
@@ -471,7 +467,6 @@ export async function addSavingsDeposit(
 ) {
     const target = await requireUserId(userId);
 
-    // Insert deposit row
     const { error: depErr } = await supabase.from("savings_deposits").insert([{
         id: deposit.id,
         user_id: target,
@@ -483,7 +478,6 @@ export async function addSavingsDeposit(
     }]);
     if (depErr) throw depErr;
 
-    // Increment current_amount on the goal
     const { data: goalData, error: fetchErr } = await supabase
         .from("savings_goals")
         .select("current_amount, target_amount")
@@ -513,49 +507,73 @@ export async function addSavingsDeposit(
 // User Settings
 // ============================================================
 
-export async function fetchUserSettings(
-    userId?: string,
-): Promise<UserSettings> {
-    const target = await requireUserId(userId);
-    const { data, error } = await supabase
-        .from("user_settings")
-        .select("*")
-        .eq("user_id", target)
-        .maybeSingle();
+export async function fetchUserSettings(userId?: string): Promise<UserSettings> {
+    try {
+        const target = userId || (await supabase.auth.getUser()).data.user?.id;
+        if (!target) return DEFAULT_SETTINGS;
 
-    if (error && error.code !== "PGRST116") throw error;
-    if (!data) return { ...DEFAULT_SETTINGS, updatedAt: Date.now() };
+        const { data, error } = await supabase
+            .from("user_settings")
+            .select("*")
+            .eq("user_id", target)
+            .maybeSingle();
 
-    return {
-        currency: data.currency ?? DEFAULT_SETTINGS.currency,
-        dateFmt: data.date_fmt ?? DEFAULT_SETTINGS.dateFmt,
-        defaultPM: data.default_pm ?? DEFAULT_SETTINGS.defaultPM,
-        weekStart: data.week_start ?? DEFAULT_SETTINGS.weekStart,
-        compactNums: data.compact_nums ?? DEFAULT_SETTINGS.compactNums,
-        showCents: data.show_cents ?? DEFAULT_SETTINGS.showCents,
-        updatedAt: data.updated_at_ms ?? Date.now(),
-    };
+        if (error && error.code !== "PGRST116") throw error;
+        if (!data) return DEFAULT_SETTINGS;
+
+        return {
+            ...DEFAULT_SETTINGS,
+            currency: data.currency ?? DEFAULT_SETTINGS.currency,
+            dateFmt: data.date_fmt ?? DEFAULT_SETTINGS.dateFmt,
+            defaultPM: data.default_pm ?? DEFAULT_SETTINGS.defaultPM,
+            weekStart: data.week_start ?? DEFAULT_SETTINGS.weekStart,
+            compactNums: data.compact_nums ?? DEFAULT_SETTINGS.compactNums,
+            showCents: data.show_cents ?? DEFAULT_SETTINGS.showCents,
+            userType: data.user_type ?? DEFAULT_SETTINGS.userType,
+            financialGoal: data.financial_goal ?? DEFAULT_SETTINGS.financialGoal,
+            budgetStyle: data.budget_style ?? DEFAULT_SETTINGS.budgetStyle,
+            focusCategories: data.focus_categories ?? DEFAULT_SETTINGS.focusCategories,
+            onboardingCompleted: data.onboarding_completed ?? DEFAULT_SETTINGS.onboardingCompleted,
+            updatedAt: data.updated_at_ms ?? DEFAULT_SETTINGS.updatedAt,
+        };
+    } catch (err) {
+        console.error("fetchUserSettings error:", err);
+        return DEFAULT_SETTINGS;
+    }
 }
 
 export async function upsertUserSettings(
     settings: UserSettings,
     userId?: string,
 ) {
-    const target = await requireUserId(userId);
-    const { error } = await supabase
-        .from("user_settings")
-        .upsert(
-            {
-                user_id: target,
-                currency: settings.currency,
-                date_fmt: settings.dateFmt,
-                default_pm: settings.defaultPM,
-                week_start: settings.weekStart,
-                compact_nums: settings.compactNums,
-                show_cents: settings.showCents,
-                updated_at_ms: settings.updatedAt ?? Date.now(),
-            },
-            { onConflict: "user_id" },
-        );
-    if (error) throw error;
+    try {
+        const target = userId || (await supabase.auth.getUser()).data.user?.id;
+        if (!target) throw new Error("No user ID for settings upsert");
+
+        const { error } = await supabase
+            .from("user_settings")
+            .upsert(
+                {
+                    user_id: target,
+                    currency: settings.currency,
+                    date_fmt: settings.dateFmt,
+                    default_pm: settings.defaultPM,
+                    week_start: settings.weekStart,
+                    compact_nums: settings.compactNums,
+                    show_cents: settings.showCents,
+                    user_type: settings.userType,
+                    financial_goal: settings.financialGoal,
+                    budget_style: settings.budgetStyle,
+                    focus_categories: settings.focusCategories,
+                    onboarding_completed: settings.onboardingCompleted,
+                    updated_at_ms: settings.updatedAt ?? Date.now(),
+                },
+                { onConflict: "user_id" },
+            );
+
+        if (error) throw error;
+    } catch (err) {
+        console.error("upsertUserSettings error:", err);
+        throw err;
+    }
 }

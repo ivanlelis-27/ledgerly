@@ -9,7 +9,7 @@ type UseUserSettingsResult = {
     loading: boolean;
     saving: boolean;
     error: string | null;
-    update: (patch: Partial<UserSettings>) => Promise<void>;
+    update: (patch: Partial<UserSettings>, immediate?: boolean) => Promise<void>;
 };
 
 export function useUserSettings(): UseUserSettingsResult {
@@ -64,28 +64,40 @@ export function useUserSettings(): UseUserSettingsResult {
 
     // update: merges patch into state immediately (optimistic) then debounces upsert
     const update = useCallback(
-        async (patch: Partial<UserSettings>) => {
-            setSettings(prev => {
-                const next = { ...prev, ...patch, updatedAt: Date.now() };
+        async (patch: Partial<UserSettings>, immediate = false) => {
+            const next = { ...settings, ...patch, updatedAt: Date.now() };
+            setSettings(next);
 
-                // Clear any pending debounce and schedule a new upsert
+            if (immediate) {
                 if (debounceRef.current) clearTimeout(debounceRef.current);
-                debounceRef.current = setTimeout(async () => {
-                    setSaving(true);
-                    try {
-                        await upsertUserSettings(next, userId ?? undefined);
-                        setError(null);
-                    } catch (err: unknown) {
-                        setError(err instanceof Error ? err.message : "Failed to save settings");
-                    } finally {
-                        setSaving(false);
-                    }
-                }, 600);
+                setSaving(true);
+                try {
+                    await upsertUserSettings(next, userId ?? undefined);
+                    setError(null);
+                } catch (err: unknown) {
+                    setError(err instanceof Error ? err.message : "Failed to save settings");
+                    throw err;
+                } finally {
+                    setSaving(false);
+                }
+                return;
+            }
 
-                return next;
-            });
+            // Debounced save
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+            debounceRef.current = setTimeout(async () => {
+                setSaving(true);
+                try {
+                    await upsertUserSettings(next, userId ?? undefined);
+                    setError(null);
+                } catch (err: unknown) {
+                    setError(err instanceof Error ? err.message : "Failed to save settings");
+                } finally {
+                    setSaving(false);
+                }
+            }, 600);
         },
-        [userId]
+        [userId, settings]
     );
 
     return { settings, loading, saving, error, update };
