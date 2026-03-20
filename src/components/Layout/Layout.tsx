@@ -110,7 +110,7 @@ export default function Layout({ children }: Props) {
                         <SideLink to="/simulator"  label="Simulator" icon={<SimulatorIcon />} />
                         <SideLink to="/health"     label="Health Score" icon={<HealthIcon />} />
                         <SideLink to="/advisor"    label="Atlas (AI)"   icon={<AtlasNavIcon />} atlasLink />
-                        <SideLink to="/salary"     label={settings.userType === "student" ? "Allowance" : "Salary"} icon={<WalletIcon />} />
+                        <SideLink to={settings.userType === "student" ? "/allowance" : "/salary"}     label={settings.userType === "student" ? "Allowance" : "Salary"} icon={<WalletIcon />} />
                         <SideLink to="/profile"    label="Profile"  icon={<ProfileIcon />} />
                         <SideLink to="/settings"   label="Settings" icon={<SettingsIcon />} />
                         <button
