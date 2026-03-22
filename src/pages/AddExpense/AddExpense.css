@@ -134,24 +134,29 @@
     .addTitleRow {
         flex-wrap: wrap;
     }
-    /* Bottom-sheet layout: anchor to bottom of screen */
+    /* Bottom-sheet: push card to bottom of overlay, stretch to full width */
     .modalOverlay {
         padding: 0;
-        align-items: flex-end;
-        justify-content: stretch;
+        /* Column flex so justify-content: flex-end anchors card to bottom    */
+        flex-direction: column;
+        justify-content: flex-end;
+        /* Stretch along the cross-axis (horizontal) = full-width card        */
+        align-items: stretch;
     }
     .modalCard {
         width: 100%;
-        /* dvh is supported on all modern Android/iOS — falls back to vh */
+        /* dvh accounts for browser chrome (address bar) on Android Chrome    */
         max-height: 92dvh;
-        max-height: 92vh; /* fallback */
+        max-height: 92vh; /* fallback for older browsers */
         border-radius: 18px 18px 0 0;
         padding: 16px;
-        /* Crucial: explicitly allow vertical pan so Android Chrome
-           doesn't swallow the gesture for browser chrome instead */
+        /* pan-y: tell Android this element handles vertical panning itself   */
         touch-action: pan-y;
-        overflow-y: scroll; /* scroll (not auto) guarantees scroll container */
+        /* scroll (not auto) always creates a scroll container even when      */
+        /* content barely overflows; auto sometimes doesn't on Android        */
+        overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
+        /* Contain overscroll so the page behind doesn't scroll               */
         overscroll-behavior: contain;
     }
 }
@@ -160,4 +165,5 @@
     .modalCard {
         padding: 24px;
     }
-}
+}
+
