@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useState, useEffect, useRef } from "react";
 import { expensesToCSV, downloadTextFile } from "../../lib/csv";
 import type { Expense } from "../../types/expense";
 import ExpenseList from "../../components/ExpenseList/ExpenseList";
@@ -136,12 +136,31 @@ export default function Dashboard() {
 
     const weekStartPref = settings.weekStart ?? "monday";
 
-    // Pull-to-refresh
+    // Pull-to-refresh — must point at the actual scroll container (.content <main>)
+    const dashRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLElement | null>(null);
+
+    // Resolve the scrollable parent once the dashboard mounts
+    useEffect(() => {
+        const el = dashRef.current;
+        if (!el) return;
+        // Walk up the DOM to find the first overflow-scroll/auto ancestor
+        let node: HTMLElement | null = el.parentElement;
+        while (node) {
+            const overflow = getComputedStyle(node).overflowY;
+            if (overflow === "scroll" || overflow === "auto") {
+                scrollContainerRef.current = node;
+                break;
+            }
+            node = node.parentElement;
+        }
+    }, []);
+
     const onRefresh = useCallback(async () => {
         await Promise.all([refetchExpenses(), refetchRecurring(), refetchSavings()]);
     }, [refetchExpenses, refetchRecurring, refetchSavings]);
 
-    const { phase: ptrPhase, pullY } = usePullToRefresh({ onRefresh });
+    const { phase: ptrPhase, pullY } = usePullToRefresh({ onRefresh, scrollRef: scrollContainerRef });
 
     // ── Compute current range start/end ──
     const [rangeStart, rangeEnd] = useMemo<[string, string]>(() => {
@@ -276,7 +295,7 @@ export default function Dashboard() {
     const isOptimizer = budgetStyle === "optimizer";
 
     return (
-        <div className="dash">
+        <div className="dash" ref={dashRef}>
             <PullToRefreshIndicator phase={ptrPhase} pullY={pullY} />
 
             {/* ── Header ── */}

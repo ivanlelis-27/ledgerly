@@ -8,8 +8,14 @@ export type PullPhase = "idle" | "pulling" | "ready" | "refreshing";
 
 interface UsePullToRefreshOptions {
     onRefresh: () => Promise<void>;
-    /** Element that must be scrolled to top before pull activates (default: window) */
-    scrollRef?: React.RefObject<HTMLElement | null>;
+    /**
+     * The scrollable content element. REQUIRED — the hook checks this
+     * element's scrollTop to know when the user is at the top. Without
+     * this, the hook falls back to window.scrollY which is always 0 in a
+     * fixed-layout app, causing preventDefault() to fire on every touch
+     * and block scroll everywhere.
+     */
+    scrollRef: React.RefObject<HTMLElement | null>;
 }
 
 export function usePullToRefresh(
@@ -22,9 +28,11 @@ export function usePullToRefresh(
     const active = useRef(false);
     const refreshing = useRef(false);
 
+    /** Returns true only when the scroll container is truly at the top */
     const isAtTop = useCallback(() => {
-        const el = scrollRef?.current;
-        return el ? el.scrollTop <= 0 : window.scrollY <= 0;
+        const el = scrollRef.current;
+        if (!el) return false;
+        return el.scrollTop <= 0;
     }, [scrollRef]);
 
     useEffect(() => {
@@ -37,17 +45,28 @@ export function usePullToRefresh(
         function onTouchMove(e: TouchEvent) {
             if (!active.current || refreshing.current) return;
             const dy = e.touches[0].clientY - startY.current;
+
+            // User reversed direction — let the browser scroll normally
             if (dy <= 0) {
                 active.current = false;
                 return;
             }
 
-            // Prevent default scroll so the pull doesn't also scroll the page
-            if (isAtTop() && dy > 5) e.preventDefault();
+            // Only block default if we're still at the top AND pulling down.
+            // Re-check scrollTop on every move — if the element has scrolled
+            // even 1 px, the browser should handle the scroll, not us.
+            if (!isAtTop()) {
+                active.current = false;
+                return;
+            }
 
-            const clamped = Math.min(dy * RESISTANCE, MAX_PULL);
-            setPullY(clamped);
-            setPhase(clamped >= THRESHOLD ? "ready" : "pulling");
+            if (dy > 5) {
+                // Safe to prevent default — we're at the top, going down
+                e.preventDefault();
+                const clamped = Math.min(dy * RESISTANCE, MAX_PULL);
+                setPullY(clamped);
+                setPhase(clamped >= THRESHOLD ? "ready" : "pulling");
+            }
         }
 
         function onTouchEnd() {
@@ -76,19 +95,22 @@ export function usePullToRefresh(
             });
         }
 
-        // Attach to the document so it works even with overflow-hidden containers
-        document.addEventListener("touchstart", onTouchStart, {
-            passive: true,
-        });
-        document.addEventListener("touchmove", onTouchMove, { passive: false });
-        document.addEventListener("touchend", onTouchEnd, { passive: true });
+        const el = scrollRef.current;
+        if (!el) return;
+
+        // Attach to the scroll container element, NOT document.
+        // This ensures the listener only fires when the user is touching
+        // the content area, not every element on the page.
+        el.addEventListener("touchstart", onTouchStart, { passive: true });
+        el.addEventListener("touchmove", onTouchMove, { passive: false });
+        el.addEventListener("touchend", onTouchEnd, { passive: true });
 
         return () => {
-            document.removeEventListener("touchstart", onTouchStart);
-            document.removeEventListener("touchmove", onTouchMove);
-            document.removeEventListener("touchend", onTouchEnd);
+            el.removeEventListener("touchstart", onTouchStart);
+            el.removeEventListener("touchmove", onTouchMove);
+            el.removeEventListener("touchend", onTouchEnd);
         };
-    }, [isAtTop, onRefresh]);
+    }, [isAtTop, onRefresh, scrollRef]);
 
     return { phase, pullY };
 }

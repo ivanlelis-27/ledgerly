@@ -104,8 +104,16 @@ export default function AddExpense() {
 
 
             {isModalOpen && (
-                <div className="modalOverlay" role="dialog" aria-modal="true" onMouseDown={() => setIsModalOpen(false)}>
-                    <div className="modalCard" onMouseDown={(e) => e.stopPropagation()}>
+                <div
+                    className="modalOverlay"
+                    role="dialog"
+                    aria-modal="true"
+                    onPointerDown={() => setIsModalOpen(false)}
+                >
+                    <div
+                        className="modalCard"
+                        onPointerDown={(e) => e.stopPropagation()}
+                    >
                         <div className="modalTop">
                             <div className="modalTitle">Add expense</div>
                             <button className="iconBtn" type="button" onClick={() => setIsModalOpen(false)} aria-label="Close">
@@ -118,9 +126,6 @@ export default function AddExpense() {
                             recentCategories={recent}
                             onSuccessClose={() => setIsModalOpen(false)}
                         />
-
-                        {/* optional: cancel button if you want */}
-                        {/* <button className="ghostBtn" type="button" onClick={() => setIsModalOpen(false)}>Cancel</button> */}
                     </div>
                 </div>
             )}
