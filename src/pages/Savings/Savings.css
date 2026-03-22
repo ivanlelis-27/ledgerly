@@ -547,7 +547,6 @@
 /* ── Mobile ── */
 @media (max-width: 767px) {
     .savings-page {
-        /* Small extra buffer so grid doesn't bleed to the very edge */
         padding: 0 2px;
     }
     .savings-header {
@@ -567,46 +566,55 @@
         padding: 0.85rem 0.9rem;
     }
     .summary-value {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
     }
+
+    /* ─ Goals grid: 2 columns ─ */
     .goals-grid {
         grid-template-columns: 1fr 1fr;
         gap: 10px;
     }
     .goal-card {
-        padding: 0.85rem;
-        gap: 0.6rem;
+        padding: 0.8rem 0.7rem;
+        gap: 0.55rem;
     }
-    /* Keep progress as a row but with smaller ring */
-    .goal-progress-wrap {
-        flex-direction: row;
-        align-items: center;
-        gap: 0.6rem;
-    }
-    .goal-amounts {
-        align-items: flex-start;
-        min-width: 0; /* allow text to shrink */
-    }
-    .goal-current {
-        font-size: 0.9rem;
-        word-break: break-all;
-    }
-    .goal-target {
-        font-size: 0.7rem;
-        word-break: break-all;
-    }
-    .goal-remaining {
-        font-size: 0.68rem;
-        word-break: break-all;
-    }
-    .goal-emoji {
-        font-size: 1.1rem;
-    }
+
+    /* Name: single line, truncate with ellipsis */
     .goal-name {
         font-size: 0.78rem;
-        word-break: break-word;
-        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
     }
+
+    /* Ring: centered above amounts */
+    .goal-progress-wrap {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .goal-amounts {
+        align-items: center;
+        text-align: center;
+        min-width: 0;
+    }
+
+    /* Current amount: single line, truncate */
+    .goal-current {
+        font-size: 0.82rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    /* Hide verbose "of ₱X" and "₱X to go" — too much for narrow cards */
+    .goal-target,
+    .goal-remaining {
+        display: none;
+    }
+
     .deposit-btn {
         font-size: 0.72rem;
         padding: 0.4rem;
@@ -623,4 +631,3 @@
         padding: 0;
     }
 }
-
