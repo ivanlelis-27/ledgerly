@@ -45,21 +45,26 @@
     position: fixed;
     inset: 0;
     background: rgba(2, 6, 23, 0.55);
-    display: grid;
-    place-items: center;
-    padding: 16px;
     z-index: 1000;
+    /* Flex so child card sizes correctly as a scroll container */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
 }
 
 .modalCard {
     width: min(540px, 100%);
     max-height: 90vh;
-    overflow: auto;
+    /* Always establish a proper scroll container */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     background: var(--panel-bg);
     border: 1px solid var(--panel-border-color);
     border-radius: 18px;
     padding: 20px;
     box-shadow: var(--shadow-soft);
+    box-sizing: border-box;
 }
 
 .modalTop {
@@ -129,19 +134,25 @@
     .addTitleRow {
         flex-wrap: wrap;
     }
+    /* Bottom-sheet layout: anchor to bottom of screen */
     .modalOverlay {
-        padding: 8px;
+        padding: 0;
         align-items: flex-end;
+        justify-content: stretch;
     }
     .modalCard {
         width: 100%;
-        max-height: 92vh;
+        /* dvh is supported on all modern Android/iOS — falls back to vh */
+        max-height: 92dvh;
+        max-height: 92vh; /* fallback */
         border-radius: 18px 18px 0 0;
         padding: 16px;
-        /* Allow vertical scrolling inside the bottom-sheet on Android */
+        /* Crucial: explicitly allow vertical pan so Android Chrome
+           doesn't swallow the gesture for browser chrome instead */
         touch-action: pan-y;
-        overflow-y: scroll;
+        overflow-y: scroll; /* scroll (not auto) guarantees scroll container */
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
     }
 }
 
@@ -149,4 +160,4 @@
     .modalCard {
         padding: 24px;
     }
-}
+}

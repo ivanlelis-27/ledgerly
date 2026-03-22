@@ -108,11 +108,11 @@ export default function AddExpense() {
                     className="modalOverlay"
                     role="dialog"
                     aria-modal="true"
-                    onPointerDown={() => setIsModalOpen(false)}
+                    onClick={() => setIsModalOpen(false)}
                 >
                     <div
                         className="modalCard"
-                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <div className="modalTop">
                             <div className="modalTitle">Add expense</div>
