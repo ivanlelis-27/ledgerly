@@ -204,6 +204,18 @@
     flex-shrink: 0;
 }
 
+/* Shrink ring on mobile via CSS — the SVG width/height attrs are overrideable */
+@media (max-width: 767px) {
+    .progress-ring-container {
+        width: 60px !important;
+        height: 60px !important;
+    }
+    .progress-ring-svg {
+        width: 60px !important;
+        height: 60px !important;
+    }
+}
+
 .progress-ring-svg {
     transform: rotate(-90deg);
 }
@@ -534,6 +546,10 @@
 
 /* ── Mobile ── */
 @media (max-width: 767px) {
+    .savings-page {
+        /* Small extra buffer so grid doesn't bleed to the very edge */
+        padding: 0 2px;
+    }
     .savings-header {
         flex-direction: column;
         align-items: flex-start;
@@ -545,20 +561,55 @@
     }
     .savings-summary {
         grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+    }
+    .summary-card {
+        padding: 0.85rem 0.9rem;
+    }
+    .summary-value {
+        font-size: 1.1rem;
     }
     .goals-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
+        gap: 10px;
     }
     .goal-card {
-        padding: 1rem;
-        gap: 0.75rem;
+        padding: 0.85rem;
+        gap: 0.6rem;
+    }
+    /* Keep progress as a row but with smaller ring */
+    .goal-progress-wrap {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    .goal-amounts {
+        align-items: flex-start;
+        min-width: 0; /* allow text to shrink */
+    }
+    .goal-current {
+        font-size: 0.9rem;
+        word-break: break-all;
+    }
+    .goal-target {
+        font-size: 0.7rem;
+        word-break: break-all;
+    }
+    .goal-remaining {
+        font-size: 0.68rem;
+        word-break: break-all;
     }
     .goal-emoji {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
     .goal-name {
-        font-size: 0.85rem;
+        font-size: 0.78rem;
+        word-break: break-word;
+        line-height: 1.2;
+    }
+    .deposit-btn {
+        font-size: 0.72rem;
+        padding: 0.4rem;
     }
     .sv-input-row {
         grid-template-columns: 1fr;
@@ -571,16 +622,5 @@
         align-items: flex-end;
         padding: 0;
     }
-    .goal-progress-wrap {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    .goal-amounts {
-        align-items: center;
-    }
-    .deposit-btn {
-        font-size: 0.75rem;
-        padding: 0.45rem;
-    }
 }
+
