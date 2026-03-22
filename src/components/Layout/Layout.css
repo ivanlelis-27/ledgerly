@@ -207,15 +207,15 @@
 
 /* ── Main content — this is the single scroll region ── */
 .content {
-    /* height:100% works because shell now has explicit height on all breakpoints */
     height: 100%;
-    overflow-y: auto;
+    /* Use scroll (not auto) — always creates a scroll boundary, required
+       for overscroll-behavior:contain to work correctly on all mobile browsers */
+    overflow-y: scroll;
     overflow-x: hidden;
-    /* NOTE: scroll-behavior: smooth is intentionally omitted — it conflicts
-       with native touch momentum scroll on iOS/Android, causing scroll-up
-       to get stuck or snap unexpectedly. */
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    /* Allow vertical panning — critical for Android Chrome */
+    touch-action: pan-y;
 
     padding: 28px 24px;
     /* Keep content above the iOS home indicator bar */
@@ -273,12 +273,31 @@
    MOBILE — hamburger drawer sidebar
    ════════════════════════════════════════════ */
 @media (max-width: 767px) {
-    /* Hide burger on desktop is below; show on mobile always */
+
+    /*
+      Use position:fixed on the layout root so the shell has a guaranteed,
+      browser-native viewport anchor. This is the most reliable way on Android
+      Chrome and iOS Safari to get a child scroll container to work, because
+      it avoids the touch-event propagation issues caused by overflow:hidden
+      ancestors and nested height:100% chains.
+    */
+    .layout {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Burger always visible */
     .burgerBtn { display: flex; }
 
-    /* Shell becomes single column */
+    /* Shell: single column, fills remaining height below topbar.
+       overflow:hidden is safe here because .layout is the fixed root. */
     .shell {
         grid-template-columns: 1fr;
+        flex: 1;
+        height: 0; /* flex + flex:1 owns the height; this prevents overflow */
+        overflow: hidden;
     }
 
     /* Backdrop */
@@ -315,28 +334,12 @@
         transform: translateX(0);
     }
 
-    /* Content takes full width and is still the scroll region */
+    /* Content: full width, fills shell, owns all scrolling */
     .content {
-        padding: 20px 16px;
         grid-column: 1;
+        width: 100%;
         height: 100%;
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-
-    /* Shell on mobile: single-column, fixed height — do NOT use overflow:hidden
-       here or it will clip .content and block scroll-up touch gestures. */
-    .shell {
-        height: calc(100vh - var(--topbar-total));
-        overflow: visible;
-    }
-
-    /* Ensure .content fills the shell and owns all scrolling on mobile */
-    .content {
-        height: calc(100vh - var(--topbar-total));
-        overflow-y: auto;
-        overflow-x: hidden;
-        /* Safe area: left notch (landscape) + home indicator bar */
+        padding: 20px 16px;
         padding-left: max(16px, env(safe-area-inset-left, 0px));
         padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
     }

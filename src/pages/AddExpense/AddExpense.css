@@ -138,6 +138,10 @@
         max-height: 92vh;
         border-radius: 18px 18px 0 0;
         padding: 16px;
+        /* Allow vertical scrolling inside the bottom-sheet on Android */
+        touch-action: pan-y;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
     }
 }
 

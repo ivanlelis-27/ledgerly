@@ -7,13 +7,12 @@
 
 html {
   height: 100%;
-  overflow: hidden; /* prevent body-level scroll — only .content scrolls */
 }
 
 body {
   margin: 0;
   height: 100%;
-  overflow: hidden; /* lock body; the layout .content region handles scroll */
+  /* No overflow:hidden here — it breaks touch-scroll event dispatch on Android */
   background: var(--bg-root);
   color: var(--text-primary);
   font-family: inherit;
@@ -25,7 +24,6 @@ body {
 
 #root {
   height: 100%;
-  overflow: hidden;
 }
 
 a {
