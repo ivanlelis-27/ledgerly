@@ -122,11 +122,14 @@ export default function AddExpense() {
                             </button>
                         </div>
 
-                        <ExpenseForm
-                            onSubmit={handleSubmit}
-                            recentCategories={recent}
-                            onSuccessClose={() => setIsModalOpen(false)}
-                        />
+                        {/* Scrollable body — only this area scrolls, title stays fixed */}
+                        <div className="modalScrollBody">
+                            <ExpenseForm
+                                onSubmit={handleSubmit}
+                                recentCategories={recent}
+                                onSuccessClose={() => setIsModalOpen(false)}
+                            />
+                        </div>
                     </div>
                 </div>,
                 document.body

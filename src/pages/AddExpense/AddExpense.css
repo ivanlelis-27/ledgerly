@@ -56,24 +56,39 @@
 .modalCard {
     width: min(540px, 100%);
     max-height: 90vh;
-    /* Always establish a proper scroll container */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    /* Card is a flex column — title is fixed, body scrolls */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* card itself does NOT scroll */
     background: var(--panel-bg);
     border: 1px solid var(--panel-border-color);
     border-radius: 18px;
-    padding: 20px;
+    padding: 0; /* padding moved to children */
     box-shadow: var(--shadow-soft);
     box-sizing: border-box;
 }
 
 .modalTop {
+    flex-shrink: 0; /* never shrink — always visible */
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 10px;
+    padding: 20px 20px 10px 20px;
 }
+
+/* The scrollable area — only this div scrolls */
+.modalScrollBody {
+    flex: 1;          /* take remaining height */
+    min-height: 0;    /* CRITICAL: without this, flex child won't shrink
+                         below content size on Android and scroll never fires */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    padding: 0 20px 20px 20px;
+}
+
 
 .modalTitle {
     font-weight: 900;
@@ -134,36 +149,37 @@
     .addTitleRow {
         flex-wrap: wrap;
     }
-    /* Bottom-sheet: push card to bottom of overlay, stretch to full width */
     .modalOverlay {
         padding: 0;
-        /* Column flex so justify-content: flex-end anchors card to bottom    */
         flex-direction: column;
         justify-content: flex-end;
-        /* Stretch along the cross-axis (horizontal) = full-width card        */
         align-items: stretch;
     }
     .modalCard {
         width: 100%;
-        /* dvh accounts for browser chrome (address bar) on Android Chrome    */
         max-height: 92dvh;
-        max-height: 92vh; /* fallback for older browsers */
+        max-height: 92vh;
         border-radius: 18px 18px 0 0;
-        padding: 16px;
-        /* pan-y: tell Android this element handles vertical panning itself   */
+    }
+    .modalTop {
+        padding: 16px 16px 10px 16px;
+    }
+    .modalScrollBody {
+        padding: 0 16px 16px 16px;
+        /* Redundantly set here too so it's explicit on mobile */
         touch-action: pan-y;
-        /* scroll (not auto) always creates a scroll container even when      */
-        /* content barely overflows; auto sometimes doesn't on Android        */
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
-        /* Contain overscroll so the page behind doesn't scroll               */
         overscroll-behavior: contain;
     }
 }
 
 @media (min-width: 768px) {
-    .modalCard {
-        padding: 24px;
+    .modalTop {
+        padding: 24px 24px 10px 24px;
+    }
+    .modalScrollBody {
+        padding: 0 24px 24px 24px;
     }
 }
 
