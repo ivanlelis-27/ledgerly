@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import ExpenseForm, { type ExpenseDraft } from "../../components/ExpenseForm/ExpenseForm";
 import ExpenseList from "../../components/ExpenseList/ExpenseList";
 import {
@@ -103,7 +104,7 @@ export default function AddExpense() {
             </div>
 
 
-            {isModalOpen && (
+            {isModalOpen && createPortal(
                 <div
                     className="modalOverlay"
                     role="dialog"
@@ -127,7 +128,8 @@ export default function AddExpense() {
                             onSuccessClose={() => setIsModalOpen(false)}
                         />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
