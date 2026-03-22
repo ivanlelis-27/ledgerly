@@ -5,6 +5,16 @@
 }
 
 /* ── Top bar ── */
+/* 
+   --safe-top is the iOS status bar / notch height.
+   With viewport-fit=cover + black-translucent status bar, the app extends
+   under the notch, so we must push content below it manually.
+*/
+:root {
+    --topbar-height: 54px;
+    --topbar-total: calc(var(--topbar-height) + env(safe-area-inset-top, 0px));
+}
+
 .topbar {
     position: sticky;
     top: 0;
@@ -13,8 +23,10 @@
     justify-content: space-between;
     gap: 16px;
     align-items: center;
-    padding: 0 14px;
-    height: 54px;
+    /* Push content below the notch/status bar */
+    padding: env(safe-area-inset-top, 0px) 14px 0;
+    /* Topbar grows to include the status bar area */
+    height: var(--topbar-total);
     border-bottom: 1px solid var(--border-color);
     background: var(--surface-nav);
     backdrop-filter: blur(12px);
@@ -96,8 +108,8 @@
 .shell {
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr);
-    /* Fixed height = viewport minus topbar; content scrolls inside */
-    min-height: calc(100vh - 54px);
+    /* Fixed height = viewport minus topbar (including safe area) */
+    min-height: calc(100vh - var(--topbar-total));
 }
 
 /* ── Backdrop (mobile only) ── */
@@ -108,12 +120,14 @@
 /* ── Sidebar ── */
 .sidebar {
     position: sticky;
-    top: 54px;
-    height: calc(100vh - 54px);
+    top: var(--topbar-total);
+    height: calc(100vh - var(--topbar-total));
     overflow-y: auto;
     border-right: 1px solid var(--border-color);
     background: var(--surface-nav);
     padding: 12px;
+    /* Account for left notch on landscape iPhones */
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
 }
 
 .sideNav {
@@ -197,12 +211,17 @@
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    /* Smooth, native-feeling scroll */
-    scroll-behavior: smooth;
+    /* NOTE: scroll-behavior: smooth is intentionally omitted — it conflicts
+       with native touch momentum scroll on iOS/Android, causing scroll-up
+       to get stuck or snap unexpectedly. */
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
 
     padding: 28px 24px;
+    /* Keep content above the iOS home indicator bar */
+    padding-bottom: max(28px, env(safe-area-inset-bottom, 0px));
+    /* Account for right notch on landscape iPhones */
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
     min-width: 0;
     width: 100%;
     box-sizing: border-box;
@@ -267,7 +286,7 @@
         display: block;
         position: fixed;
         inset: 0;
-        top: 54px;
+        top: var(--topbar-total);
         background: rgba(2, 6, 23, 0.45);
         backdrop-filter: blur(3px);
         -webkit-backdrop-filter: blur(3px);
@@ -282,9 +301,9 @@
     /* Sidebar is a slide-in drawer */
     .sidebar {
         position: fixed;
-        top: 54px;
+        top: var(--topbar-total);
         left: 0;
-        height: calc(100vh - 54px);
+        height: calc(100vh - var(--topbar-total));
         width: 240px;
         z-index: 35;
         transform: translateX(-100%);
@@ -305,10 +324,21 @@
         overflow-x: hidden;
     }
 
-    /* Shell on mobile: single-column, still fixed height */
+    /* Shell on mobile: single-column, fixed height — do NOT use overflow:hidden
+       here or it will clip .content and block scroll-up touch gestures. */
     .shell {
-        height: calc(100vh - 54px);
-        overflow: hidden;
+        height: calc(100vh - var(--topbar-total));
+        overflow: visible;
+    }
+
+    /* Ensure .content fills the shell and owns all scrolling on mobile */
+    .content {
+        height: calc(100vh - var(--topbar-total));
+        overflow-y: auto;
+        overflow-x: hidden;
+        /* Safe area: left notch (landscape) + home indicator bar */
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
     }
 
     /* Theme label hidden on very small screens */
@@ -321,7 +351,7 @@
 
     .shell {
         grid-template-columns: 180px minmax(0, 1fr);
-        height: calc(100vh - 54px); /* explicit height so children can use height:100% */
+        height: calc(100vh - var(--topbar-total));
     }
 
     .sideLabel { font-size: 12px; }
@@ -333,6 +363,6 @@
     .burgerBtn { display: none; }
     .shell {
         grid-template-columns: 220px minmax(0, 1fr);
-        height: calc(100vh - 54px);
+        height: calc(100vh - var(--topbar-total));
     }
 }
